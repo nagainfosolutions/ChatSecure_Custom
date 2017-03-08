@@ -37,9 +37,9 @@
         self.dateLabel.translatesAutoresizingMaskIntoConstraints = NO;
         
         self.nameLabel = [[UILabel alloc] init];
-        self.nameLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]+2.0];
+        self.nameLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]+5.0];
         self.nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        self.nameLabel.textColor = darkGreyColor;
+        self.nameLabel.textColor = [UIColor blackColor];
         
         self.conversationLabel = [[UILabel alloc] init];
         self.conversationLabel.translatesAutoresizingMaskIntoConstraints = NO;
