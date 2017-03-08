@@ -374,7 +374,7 @@
 		D93DDBC81BA79AD300CD8331 /* OTRAccountTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 6331064C1A16D1A300C17BAE /* OTRAccountTableViewCell.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		D93DDBC91BA79AD500CD8331 /* OTRBuddyImageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 6331064E1A16D1A300C17BAE /* OTRBuddyImageCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D93DDBCA1BA79AD700CD8331 /* OTRBuddyInfoCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 633106501A16D1A300C17BAE /* OTRBuddyInfoCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		D93DDBCB1BA79AD800CD8331 /* OTRConversationCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 633106521A16D1A300C17BAE /* OTRConversationCell.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		D93DDBCB1BA79AD800CD8331 /* OTRConversationCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 633106521A16D1A300C17BAE /* OTRConversationCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D93DDBCC1BA79ADA00CD8331 /* OTRInLineTextEditTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 633106541A16D1A300C17BAE /* OTRInLineTextEditTableViewCell.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		D93DDBCD1BA79ADB00CD8331 /* OTRSettingTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 6331065E1A16D1A300C17BAE /* OTRSettingTableViewCell.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		D93DDBCE1BA79ADD00CD8331 /* OTRStatusMessageCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 633106601A16D1A300C17BAE /* OTRStatusMessageCell.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -1826,6 +1826,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D93DDB491BA79A7200CD8331 /* OTRXMPPManager.h in Headers */,
+				D93DDBCB1BA79AD800CD8331 /* OTRConversationCell.h in Headers */,
 				D9227C2D1BA7952100B5E1D0 /* ChatSecureCore.h in Headers */,
 				D93DDB2B1BA79A7000CD8331 /* OTRAppDelegate.h in Headers */,
 				D93DDB2C1BA79A7000CD8331 /* NSURL+ChatSecure.h in Headers */,
@@ -1954,7 +1955,6 @@
 				D93DDB771BA79A8100CD8331 /* OTRDonateSetting.h in Headers */,
 				D93DDB701BA79A7E00CD8331 /* OTRDomainCellInfo.h in Headers */,
 				D93DDBB81BA79ABE00CD8331 /* OTRDatabaseUnlockViewController.h in Headers */,
-				D93DDBCB1BA79AD800CD8331 /* OTRConversationCell.h in Headers */,
 				D93DDBD61BA79AEA00CD8331 /* OTRComposingImageView.h in Headers */,
 				D93DDB971BA79A9900CD8331 /* OTRColors.h in Headers */,
 				D93DDBD51BA79AE900CD8331 /* OTRColorFadingDotView.h in Headers */,
