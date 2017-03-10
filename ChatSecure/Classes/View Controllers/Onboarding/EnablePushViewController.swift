@@ -22,12 +22,12 @@ public class EnablePushViewController: UIViewController {
     override public func viewDidDisappear(animated: Bool) {
         super.viewDidDisappear(animated)
         NSNotificationCenter.defaultCenter().removeObserver(self)
-        self.navigationItem.setHidesBackButton(false, animated: animated)
+        self.navigationController?.navigationBarHidden = false
     }
     
     override public func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationItem.setHidesBackButton(true, animated: animated)
+        self.navigationController?.navigationBarHidden = true
     }
     
     override public func viewDidAppear(animated: Bool) {
@@ -56,19 +56,7 @@ public class EnablePushViewController: UIViewController {
     }
     
     func showNextScreen() {
-        if self.account != nil {
-            
-            let appDelegate = UIApplication.sharedApplication().delegate as? OTRAppDelegate
-            var inviteVC:OTRInviteViewController? = nil
-            if let c = appDelegate?.theme.inviteViewControllerClass() as? OTRInviteViewController.Type {
-                inviteVC = c.init()
-                inviteVC!.account = self.account
-                self.navigationController?.pushViewController(inviteVC!, animated: true)
-            }
-        } else {
-            self.dismissViewControllerAnimated(true, completion: nil)
-        }
-        
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
     
     func didRegisterUserNotificationSettings(notification: NSNotification) {

@@ -32,18 +32,20 @@
         self.nameLabel = [[UILabel alloc] init];
         self.nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
         self.nameLabel.adjustsFontSizeToFitWidth = YES;
+        self.nameLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont systemFontSize]+5.0];
+
         [self.contentView addSubview:self.nameLabel];
         
         self.identifierLabel = [[UILabel alloc] init];
         self.identifierLabel.textColor = [UIColor colorWithWhite:.45 alpha:1.0];
-        self.identifierLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+        self.identifierLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize]];
         self.identifierLabel.adjustsFontSizeToFitWidth = YES;
         self.identifierLabel.translatesAutoresizingMaskIntoConstraints = NO;
         [self.contentView addSubview:self.identifierLabel];
         
         self.accountLabel = [[UILabel alloc] initForAutoLayout];
         self.accountLabel.textColor = [UIColor colorWithWhite:.55 alpha:1.0];
-        self.accountLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+        self.accountLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize]];
         self.accountLabel.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:self.accountLabel];
         

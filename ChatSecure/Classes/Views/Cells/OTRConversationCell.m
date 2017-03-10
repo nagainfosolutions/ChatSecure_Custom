@@ -32,20 +32,21 @@
         UIColor *darkGreyColor = [UIColor colorWithWhite:.45 alpha:1.0];
         UIColor *lightGreyColor = [UIColor colorWithWhite:.6 alpha:1.0];
         self.dateLabel = [[UILabel alloc] init];
-        self.dateLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+        self.dateLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize]];
         self.dateLabel.textColor = darkGreyColor;
         self.dateLabel.translatesAutoresizingMaskIntoConstraints = NO;
         
         self.nameLabel = [[UILabel alloc] init];
-        self.nameLabel.font = [UIFont systemFontOfSize:[UIFont systemFontSize]+5.0];
+        self.nameLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont systemFontSize]+5.0];
+
         self.nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        self.nameLabel.textColor = [UIColor blackColor];
+        self.nameLabel.textColor = [UIColor darkGrayColor];
         
         self.conversationLabel = [[UILabel alloc] init];
         self.conversationLabel.translatesAutoresizingMaskIntoConstraints = NO;
         self.conversationLabel.lineBreakMode = NSLineBreakByWordWrapping;
         self.conversationLabel.numberOfLines = 0;
-        self.conversationLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+        self.conversationLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize]];
         self.conversationLabel.textColor = lightGreyColor;
         
         self.accountLabel = [[UILabel alloc] init];
@@ -91,16 +92,16 @@
     
     self.accountLabel.text = account.username;
     
-    UIFont *currentFont = self.conversationLabel.font;
+    UIFont *currentFont = self.nameLabel.font;
     CGFloat fontSize = currentFont.pointSize;
+    
     self.conversationLabel.text = lastMessage.text;
+    
     if (unreadMessages > 0) {
         //unread message
-        self.nameLabel.font = [UIFont boldSystemFontOfSize:fontSize];
         self.nameLabel.textColor = [UIColor blackColor];
     } else {
-        self.nameLabel.font = [UIFont systemFontOfSize:fontSize];
-        self.nameLabel.textColor = [UIColor colorWithWhite:.45 alpha:1.0];
+        self.nameLabel.textColor = [UIColor darkGrayColor];
     }
     self.dateLabel.textColor = self.nameLabel.textColor;
     

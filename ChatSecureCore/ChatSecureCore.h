@@ -88,6 +88,3 @@ FOUNDATION_EXPORT const unsigned char ChatSecureCoreVersionString[];
 
 //OMEMO Models
 #import "OTROMEMODevice.h"
-
-//Cells
-#import "OTRConversationCell.h"
