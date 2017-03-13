@@ -46,6 +46,20 @@ extern NSString *const OTRXMPPTorImageName;
  */
 @property (nonatomic, strong) NSData *avatarData;
 
+
+/**
+ * Custom parameters
+ * Added by leojin
+ */
+@property (nonatomic, strong) NSString *userId;
+@property (nonatomic, strong) NSString *VROuserName;
+@property (nonatomic, strong) NSString *email;
+@property (nonatomic, strong) NSString *mobileNumber;
+@property (nonatomic, strong) NSString *profilePicture;
+@property (nonatomic, strong) NSString *profilePictureThumb;
+@property (nonatomic, strong) NSString *mediaPath;
+@property (nonatomic, strong) NSString *accessToken;
+
 /** 
  * To remove the keychain password, you must explicitly call removeKeychainPassword
  * instead of setting empty string or nil 
