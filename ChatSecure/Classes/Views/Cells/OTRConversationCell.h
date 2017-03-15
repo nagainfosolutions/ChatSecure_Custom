@@ -12,8 +12,11 @@
 
 @property (nonatomic, strong) UILabel *nameLabel;
 @property (nonatomic, strong) UILabel *dateLabel;
+@property (nonatomic, strong) UIButton *buttonCall;
 @property (nonatomic, strong) UILabel *conversationLabel;
 @property (nonatomic, strong) UILabel *accountLabel;
+
+
 
 @property (nonatomic) BOOL showAccountLabel;
 

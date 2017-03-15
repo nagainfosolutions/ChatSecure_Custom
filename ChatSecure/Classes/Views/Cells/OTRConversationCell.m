@@ -12,6 +12,7 @@
 #import "OTRIncomingMessage.h"
 #import "OTROutgoingMessage.h"
 #import "OTRDatabaseManager.h"
+#import "OTRTheme.h"
 @import YapDatabase;
 
 
@@ -29,15 +30,16 @@
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         self.showAccountLabel = NO;
         
-        UIColor *darkGreyColor = [UIColor colorWithWhite:.45 alpha:1.0];
+        UIColor *themeColor = [OTRTheme colorWithHexString:DEFAULT_ZOM_COLOR];
+        
         UIColor *lightGreyColor = [UIColor colorWithWhite:.6 alpha:1.0];
         self.dateLabel = [[UILabel alloc] init];
-        self.dateLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize]];
-        self.dateLabel.textColor = darkGreyColor;
+        self.dateLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize] - 2];
+        self.dateLabel.textColor = themeColor;
         self.dateLabel.translatesAutoresizingMaskIntoConstraints = NO;
         
         self.nameLabel = [[UILabel alloc] init];
-        self.nameLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont systemFontSize]+5.0];
+        self.nameLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont systemFontSize]];
 
         self.nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
         self.nameLabel.textColor = [UIColor darkGrayColor];
@@ -46,13 +48,18 @@
         self.conversationLabel.translatesAutoresizingMaskIntoConstraints = NO;
         self.conversationLabel.lineBreakMode = NSLineBreakByWordWrapping;
         self.conversationLabel.numberOfLines = 0;
-        self.conversationLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize]];
+        self.conversationLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize] - 2];
         self.conversationLabel.textColor = lightGreyColor;
         
         self.accountLabel = [[UILabel alloc] init];
         self.accountLabel.translatesAutoresizingMaskIntoConstraints = NO;
         
+        self.buttonCall = [UIButton buttonWithType:UIButtonTypeCustom];
         
+        [self.buttonCall setImage:[UIImage imageNamed:@"VoiceCallIcon"] forState:UIControlStateNormal];
+        [self.buttonCall.imageView setContentMode:UIViewContentModeScaleAspectFit];
+        
+        [self.contentView addSubview:self.buttonCall];
         [self.contentView addSubview:self.dateLabel];
         [self.contentView addSubview:self.nameLabel];
         [self.contentView addSubview:self.conversationLabel];
@@ -92,8 +99,8 @@
     
     self.accountLabel.text = account.username;
     
-    UIFont *currentFont = self.nameLabel.font;
-    CGFloat fontSize = currentFont.pointSize;
+//    UIFont *currentFont = self.nameLabel.font;
+//    CGFloat fontSize = currentFont.pointSize;
     
     self.conversationLabel.text = lastMessage.text;
     
@@ -103,7 +110,6 @@
     } else {
         self.nameLabel.textColor = [UIColor darkGrayColor];
     }
-    self.dateLabel.textColor = self.nameLabel.textColor;
     
     [self updateDateString:lastMessage.date];
 }
@@ -182,7 +188,11 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-margin-[dateLabel]" options:0 metrics:metrics
                                                                                    views:views]];
         
+        NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:self.dateLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:6.0];
+        [self.contentView addConstraint:bottomConstraint];
         
+        self.buttonCall.frame = CGRectMake(self.frame.size.width - 64.0, 12.0, 32.0, 26.0);
+
     }
     
     if([self.accountHorizontalConstraints count])

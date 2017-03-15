@@ -805,7 +805,7 @@
     },
     "SEND_PLAINTEXT_STRING" : {
         "comment": "The placeholder text in the chat view where the message should go",
-        "string": "Send plaintext message"
+        "string": "Click here to type something..."
     },
     "SEND_ENCRYPTED_STRING" : {
         "comment": "The placeholder text in the chat view where the message should go",

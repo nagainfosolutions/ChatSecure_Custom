@@ -6,6 +6,9 @@
 //  Copyright (c) 2015 Chris Ballinger. All rights reserved.
 //
 
+#define DEFAULT_ZOM_COLOR @"#FF00B371"
+
+
 @import Foundation;
 @import UIKit;
 @import JSQMessagesViewController;
@@ -16,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIColor *mainThemeColor;
 @property (nonatomic, strong) UIColor *lightThemeColor;
 @property (nonatomic, strong) UIColor *buttonLabelColor;
+
++ (UIColor*) colorWithHexString:(NSString*)hexColorString;
 
 /** Set global app appearance via UIAppearance */
 - (void) setupGlobalTheme;

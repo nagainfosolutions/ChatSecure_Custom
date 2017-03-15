@@ -112,6 +112,7 @@
 		63FA130C1C8A4EB700AE33EF /* OTRMessagesCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FA130B1C8A4EB700AE33EF /* OTRMessagesCollectionViewFlowLayout.swift */; };
 		63FCB1371DA3224A00A801F2 /* OTRSignalEncryptionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FCB1361DA3224A00A801F2 /* OTRSignalEncryptionHelper.swift */; };
 		7A6540ECCA04445E88F06962 /* Pods_ChatSecureCorePods_ChatSecureTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 281981F599E0F5C8397E6A3F /* Pods_ChatSecureCorePods_ChatSecureTests.framework */; };
+		8A0C69601E791B0100421C54 /* OTRImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9AE3A231BA8D02800255537 /* OTRImages.xcassets */; };
 		D91E641A1DB156E90074B2D4 /* OMEMODeviceFingerprintCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D91E64181DB156E90074B2D4 /* OMEMODeviceFingerprintCell.swift */; };
 		D91E641C1DB179A00074B2D4 /* OMEMODeviceFingerprintCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D91E64191DB156E90074B2D4 /* OMEMODeviceFingerprintCell.xib */; };
 		D9227C241BA78E6B00B5E1D0 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D9227C231BA78E6B00B5E1D0 /* FontAwesome.ttf */; };
@@ -1828,6 +1829,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D93DDBB61BA79ABB00CD8331 /* OTRComposeViewController.h in Headers */,
 				D93DDB491BA79A7200CD8331 /* OTRXMPPManager.h in Headers */,
 				D9227C2D1BA7952100B5E1D0 /* ChatSecureCore.h in Headers */,
 				D93DDB2B1BA79A7000CD8331 /* OTRAppDelegate.h in Headers */,
@@ -1870,7 +1872,6 @@
 				D93DDBAE1BA79AB100CD8331 /* OTRLoginHandler.h in Headers */,
 				638338DE1BCC508200EB0CA1 /* OTRMessagesGroupViewController.h in Headers */,
 				637ABBCB1DD5330200B18DD2 /* OTRIncomingMessage.h in Headers */,
-				D93DDBB61BA79ABB00CD8331 /* OTRComposeViewController.h in Headers */,
 				D93DDBB71BA79ABD00CD8331 /* OTRConversationViewController.h in Headers */,
 				D9AE3A321BA8D9AB00255537 /* OTRConstants.h in Headers */,
 				D93DDBBE1BA79AC600CD8331 /* OTRMessagesViewController.h in Headers */,
@@ -2314,6 +2315,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A0C69601E791B0100421C54 /* OTRImages.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

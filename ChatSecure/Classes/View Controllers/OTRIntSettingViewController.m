@@ -47,7 +47,7 @@
     self.valueTable.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.valueLabel.textAlignment = NSTextAlignmentCenter;
     self.valueLabel.backgroundColor = [UIColor clearColor];
-    self.valueLabel.font = [UIFont boldSystemFontOfSize:18.0];
+    self.valueLabel.font = [UIFont fontWithName:@"Calibri" size:18.0];
     self.valueLabel.shadowColor = [UIColor whiteColor];
     self.valueLabel.shadowOffset = CGSizeMake(0, -1);
     self.valueTable.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
@@ -107,7 +107,7 @@
 
 - (void) setTextForValueLabel {
     self.valueLabel.text = [NSString stringWithFormat:@"%@: %@\t%@: %@", OLD_STRING(), [self stringForValue:otrSetting.intValue], NEW_STRING(), [self stringForValue:newValue]];
-    self.descriptionLabel.font = [UIFont systemFontOfSize:newValue];
+    self.descriptionLabel.font = [UIFont fontWithName:@"Calibri" size:newValue];
     [self resizeDescriptionLabel];
 }
 

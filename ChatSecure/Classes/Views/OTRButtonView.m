@@ -134,7 +134,7 @@ CGFloat const kOTRButtonViewTopMargin = 3;
 {
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
     label.translatesAutoresizingMaskIntoConstraints = NO;
-    label.font = [UIFont systemFontOfSize:13.0];
+    label.font = [UIFont fontWithName:@"Calibri" size:13.0];
     label.textColor = [UIColor colorWithWhite:0.54 alpha:1.0];
     label.numberOfLines = 0;
     label.textAlignment = NSTextAlignmentCenter;

@@ -30,6 +30,20 @@
 }
 
 
++ (UIColor*) colorWithHexString:(NSString*)hexColorString
+{
+    NSScanner *scanner = [NSScanner scannerWithString:hexColorString];
+    [scanner setScanLocation:1];
+    unsigned hex;
+    if (![scanner scanHexInt:&hex]) return nil;
+    int a = (hex >> 24) & 0xFF;
+    int r = (hex >> 16) & 0xFF;
+    int g = (hex >> 8) & 0xFF;
+    int b = (hex) & 0xFF;
+    return [UIColor colorWithRed:r / 255.0f green:g / 255.0f blue:b / 255.0f alpha:a / 255.0f];
+}
+
+
 - (Class) conversationViewControllerClass {
     return [OTRConversationViewController class];
 }

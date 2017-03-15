@@ -104,7 +104,7 @@ static NSString *const kDefaultCellReuseIdentifier = @"kDefaultCellReuseIdentifi
     NSRange chrisRange = [headerText rangeOfString:chrisballingerString];
     NSRange davidRange = [headerText rangeOfString:davidchilesString];
     
-    UIFont *font = [UIFont systemFontOfSize:12];
+    UIFont *font = [UIFont fontWithName:@"Calibri" size:12];
     CGFloat labelWidth = CGRectGetWidth(self.view.frame) - 2 * labelMargin;;
     CGFloat labelHeight;
     

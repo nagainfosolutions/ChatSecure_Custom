@@ -64,7 +64,7 @@
     
     displayNameTextField = [[UITextField alloc]init];
     displayNameTextField.placeholder = OPTIONAL_STRING();
-    displayNameTextField.font = [UIFont systemFontOfSize:15];
+    displayNameTextField.font = [UIFont fontWithName:@"Calibri" size:15];
     
     displayNameTextField.delegate = self;
     
@@ -237,7 +237,7 @@
     
     
     UILabel * nameLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    nameLabel.font = [UIFont boldSystemFontOfSize:18];
+    nameLabel.font = [UIFont fontWithName:@"Calibri" size:18];
     nameLabel.numberOfLines = 0;
     //nameLabel.lineBreakMode = UILineBreakModeWordWrap;
     nameLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;

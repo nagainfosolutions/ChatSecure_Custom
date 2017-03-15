@@ -38,7 +38,7 @@
 #import "OTRXMPPPresenceSubscriptionRequest.h"
 #import "OTRBuddyApprovalCell.h"
 
-static CGFloat kOTRConversationCellHeight = 80.0;
+static CGFloat kOTRConversationCellHeight = 62.0;
 
 @interface OTRConversationViewController () <OTRYapViewHandlerDelegateProtocol, OTRAccountDatabaseCountDelegate >
 
@@ -321,7 +321,11 @@ static CGFloat kOTRConversationCellHeight = 80.0;
         cell = approvalCell;
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     } else {
-        cell = [tableView dequeueReusableCellWithIdentifier:[OTRConversationCell reuseIdentifier] forIndexPath:indexPath];
+        OTRConversationCell *conversationCell = (OTRConversationCell *)[tableView dequeueReusableCellWithIdentifier:[OTRConversationCell reuseIdentifier] forIndexPath:indexPath];
+        conversationCell.buttonCall.tag = indexPath.row;
+        conversationCell.buttonCall.accessibilityIdentifier = [NSString stringWithFormat:@"%ld", (long)indexPath.section];
+        [conversationCell.buttonCall addTarget:self action:@selector(buttonActionVoiceCall:) forControlEvents:UIControlEventTouchUpInside];
+        cell = conversationCell;
         cell.selectionStyle = UITableViewCellSelectionStyleDefault;
     }
     
@@ -331,6 +335,13 @@ static CGFloat kOTRConversationCellHeight = 80.0;
     
     return cell;
 }
+
+
+-(void)buttonActionVoiceCall:(UIButton *)sender {
+    id  thread = [self threadForIndexPath:[NSIndexPath indexPathForRow:sender.tag inSection:(NSInteger)sender.accessibilityIdentifier]];
+    
+}
+
 
 #pragma - mark UITableViewDelegate Methods
 

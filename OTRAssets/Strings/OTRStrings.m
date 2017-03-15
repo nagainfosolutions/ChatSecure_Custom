@@ -318,8 +318,8 @@ NSString* SENDING_STRING() { return [OTRLanguageManager translatedString:@"Sendi
 NSString* SEND_ENCRYPTED_STRING() { return [OTRLanguageManager translatedString:@"Send %@ encrypted message"]; }
 /** "Send Feedback", String on button to email feedback */
 NSString* SEND_FEEDBACK_STRING() { return [OTRLanguageManager translatedString:@"Send Feedback"]; }
-/** "Send plaintext message", The placeholder text in the chat view where the message should go */
-NSString* SEND_PLAINTEXT_STRING() { return [OTRLanguageManager translatedString:@"Send plaintext message"]; }
+/** "Click here to type something...", The placeholder text in the chat view where the message should go */
+NSString* SEND_PLAINTEXT_STRING() { return [OTRLanguageManager translatedString:@"Click here to type something..."]; }
 /** "Settings", Title for the Settings screen */
 NSString* SETTINGS_STRING() { return [OTRLanguageManager translatedString:@"Settings"]; }
 /** "Chat with me securely", Body of SMS or email when sharing a link to the app */

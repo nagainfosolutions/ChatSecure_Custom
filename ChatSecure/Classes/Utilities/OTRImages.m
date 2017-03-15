@@ -858,7 +858,7 @@ NSString *const OTRDuckDuckGoImageKey = @"OTRMicrophoneImageKey";
     JSQMessagesAvatarImage *jsqImage = [JSQMessagesAvatarImageFactory avatarImageWithUserInitials:initials
                                                                                   backgroundColor:[UIColor colorWithWhite:0.85f alpha:1.0f]
                                                                                         textColor:[UIColor colorWithWhite:0.60f alpha:1.0f]
-                                                                                             font:[UIFont systemFontOfSize:30.0f]
+                                                                                             font:[UIFont fontWithName:@"Calibri" size:30.0f]
                                                                                          diameter:60];
     return jsqImage.avatarImage;
 }

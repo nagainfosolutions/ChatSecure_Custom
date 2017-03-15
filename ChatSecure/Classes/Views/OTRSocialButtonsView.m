@@ -29,7 +29,7 @@ static CGFloat kOTRSocialTotalWidth = 300.0f;
     self = [super initWithFrame:frame];
     if (self) {
         self.translatesAutoresizingMaskIntoConstraints = NO;
-        UIFont *buttonFont = [UIFont systemFontOfSize:15];
+        UIFont *buttonFont = [UIFont fontWithName:@"Calibri" size:15];
         self.facebookButton = [[BButton alloc] initWithFrame:CGRectZero type:BButtonTypeFacebook style:BButtonStyleBootstrapV3];
         self.facebookButton.titleLabel.text = FACEBOOK_STRING();
         self.facebookButton.titleLabel.font = buttonFont;

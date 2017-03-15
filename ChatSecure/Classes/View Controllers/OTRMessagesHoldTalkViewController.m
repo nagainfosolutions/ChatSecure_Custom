@@ -64,6 +64,7 @@ static Float64 kOTRMessagesMinimumAudioTime = .5;
     CGFloat maxHeight = 32.0f;
     [self.knockButton setTitle:title forState:UIControlStateNormal];
     
+    
     CGRect sendTitleRect = [title boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, maxHeight)
                                                    options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
                                                 attributes:@{ NSFontAttributeName : self.knockButton.titleLabel.font }

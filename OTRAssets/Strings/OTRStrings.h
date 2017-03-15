@@ -318,7 +318,7 @@ FOUNDATION_EXPORT NSString* SENDING_STRING();
 FOUNDATION_EXPORT NSString* SEND_ENCRYPTED_STRING();
 /** "Send Feedback", String on button to email feedback */
 FOUNDATION_EXPORT NSString* SEND_FEEDBACK_STRING();
-/** "Send plaintext message", The placeholder text in the chat view where the message should go */
+/** "Click here to type something...", The placeholder text in the chat view where the message should go */
 FOUNDATION_EXPORT NSString* SEND_PLAINTEXT_STRING();
 /** "Settings", Title for the Settings screen */
 FOUNDATION_EXPORT NSString* SETTINGS_STRING();

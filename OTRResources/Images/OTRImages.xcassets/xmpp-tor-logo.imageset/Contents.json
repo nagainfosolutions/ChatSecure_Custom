@@ -2,13 +2,13 @@
   "images" : [
     {
       "idiom" : "universal",
-      "scale" : "1x",
-      "filename" : "xmpp-tor-logo.png"
+      "filename" : "xmpp-tor-logo.png",
+      "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "scale" : "2x",
-      "filename" : "xmpp-tor-logo@2x.png"
+      "filename" : "xmpp-tor-logo@2x.png",
+      "scale" : "2x"
     },
     {
       "idiom" : "universal",

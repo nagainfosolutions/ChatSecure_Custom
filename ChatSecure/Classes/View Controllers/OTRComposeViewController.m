@@ -24,6 +24,7 @@
 
 #import <ChatSecureCore/ChatSecureCore-Swift.h>
 
+
 @import OTRAssets;
 
 static CGFloat OTRBuddyInfoCellHeight = 80.0;
@@ -72,7 +73,7 @@ static CGFloat OTRBuddyInfoCellHeight = 80.0;
     
     UIBarButtonItem * cancelBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelButtonPressed:)];
     
-    UIImage *checkImage = [UIImage imageNamed:@"ic-check" inBundle:[OTRAssets resourcesBundle] compatibleWithTraitCollection:nil];
+    UIImage *checkImage = [UIImage imageNamed:@"ic-check"];
     self.doneBarButtonItem = [[UIBarButtonItem alloc] initWithImage:checkImage style:UIBarButtonItemStylePlain target:self action:@selector(doneButtonPressed:)];
     
     NSString *groupString = [NSString fa_stringForFontAwesomeIcon:FAGroup];
@@ -102,6 +103,7 @@ static CGFloat OTRBuddyInfoCellHeight = 80.0;
     
     [self setupSearchController];
     
+
     //////// View Handlers /////////
     self.viewHandler = [[OTRYapViewHandler alloc] initWithDatabaseConnection:[OTRDatabaseManager sharedInstance].longLivedReadOnlyConnection databaseChangeNotificationName:[DatabaseNotificationName LongLivedTransactionChanges]];
     self.viewHandler.delegate = self;

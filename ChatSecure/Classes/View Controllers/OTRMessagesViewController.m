@@ -109,10 +109,13 @@ typedef NS_ENUM(int, OTRDropDownType) {
     
      ////// bubbles //////
     JSQMessagesBubbleImageFactory *bubbleImageFactory = [[JSQMessagesBubbleImageFactory alloc] init];
-                                                         
-    self.outgoingBubbleImage = [bubbleImageFactory outgoingMessagesBubbleImageWithColor:[UIColor jsq_messageBubbleBlueColor]];
     
-    self.incomingBubbleImage = [bubbleImageFactory incomingMessagesBubbleImageWithColor:[UIColor jsq_messageBubbleLightGrayColor]];
+    UIColor *greenColor = [OTRTheme colorWithHexString:DEFAULT_ZOM_COLOR];
+
+    self.outgoingBubbleImage = [bubbleImageFactory outgoingMessagesBubbleImageWithColor:greenColor];
+    self.incomingBubbleImage = [bubbleImageFactory incomingMessagesBubbleImageWithColor:[UIColor lightGrayColor]];
+    
+    
     
     ////// TitleView //////
     OTRTitleSubtitleView *titleView = [self titleView];
@@ -131,9 +134,11 @@ typedef NS_ENUM(int, OTRDropDownType) {
     self.cameraButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     self.cameraButton.titleLabel.font = [UIFont fontWithName:kFontAwesomeFont size:20];
     self.cameraButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-    [self.cameraButton setTitle:[NSString fa_stringForFontAwesomeIcon:FACamera] forState:UIControlStateNormal];
+//    [self.cameraButton setTitle:[NSString fa_stringForFontAwesomeIcon:FACamera] forState:UIControlStateNormal];
     self.cameraButton.frame = CGRectMake(0, 0, 32, 32);
-    
+    [self.cameraButton setImage:[UIImage imageNamed:@"AttachmentIcon"] forState:UIControlStateNormal];
+    [self.cameraButton setTitle:@"" forState:UIControlStateNormal];
+
     ////// Microphone Button //////
     self.microphoneButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     self.microphoneButton.frame = CGRectMake(0, 0, 32, 32);
@@ -163,28 +168,47 @@ typedef NS_ENUM(int, OTRDropDownType) {
         __typeof__(self) strongSelf = weakSelf;
         
         if ([object isKindOfClass:[MessagesViewControllerState class]]) {
-            MessagesViewControllerState *state = (MessagesViewControllerState*)object;
-            NSString * placeHolderString = nil;
-            switch (state.messageSecurity) {
-                case OTRMessageTransportSecurityPlaintext:
-                case OTRMessageTransportSecurityPlaintextWithOTR:
-                    placeHolderString = SEND_PLAINTEXT_STRING();
-                    break;
-                case OTRMessageTransportSecurityOTR:
-                    placeHolderString = [NSString stringWithFormat:SEND_ENCRYPTED_STRING(),@"OTR"];
-                    break;
-                case OTRMessageTransportSecurityOMEMO:
-                    placeHolderString = [NSString stringWithFormat:SEND_ENCRYPTED_STRING(),@"OMEMO"];;
-                    break;
-                    
-                default:
-                    placeHolderString = [NSBundle jsq_localizedStringForKey:@"new_message"];
-                    break;
-            }
-            strongSelf.inputToolbar.contentView.textView.placeHolder = placeHolderString;
+//            MessagesViewControllerState *state = (MessagesViewControllerState*)object;
+//            NSString * placeHolderString = nil;
+//            switch (state.messageSecurity) {
+//                case OTRMessageTransportSecurityPlaintext:
+//                case OTRMessageTransportSecurityPlaintextWithOTR:
+//                    placeHolderString = SEND_PLAINTEXT_STRING();
+//                    break;
+//                case OTRMessageTransportSecurityOTR:
+//                    placeHolderString = [NSString stringWithFormat:SEND_ENCRYPTED_STRING(),@"OTR"];
+//                    break;
+//                case OTRMessageTransportSecurityOMEMO:
+//                    placeHolderString = [NSString stringWithFormat:SEND_ENCRYPTED_STRING(),@"OMEMO"];;
+//                    break;
+//                    
+//                default:
+//                    placeHolderString = [NSBundle jsq_localizedStringForKey:@"new_message"];
+//                    break;
+//            }
+            strongSelf.inputToolbar.contentView.textView.placeHolder = SEND_PLAINTEXT_STRING();
             [self didUpdateState];
         }
     }];
+    
+
+    self.collectionView.collectionViewLayout.messageBubbleFont = [UIFont fontWithName:@"Calibri" size:self.collectionView.collectionViewLayout.messageBubbleFont.pointSize];
+    self.collectionView.loadEarlierMessagesHeaderTextColor = greenColor;
+    self.collectionView.typingIndicatorEllipsisColor = [UIColor whiteColor];
+    self.collectionView.typingIndicatorMessageBubbleColor = greenColor;
+    self.inputToolbar.contentView.textView.layer.cornerRadius = self.inputToolbar.contentView.textView.frame.size.height/2;
+    self.inputToolbar.contentView.textView.font = [UIFont fontWithName:@"Calibri" size:self.inputToolbar.contentView.textView.font.pointSize];
+    
+    [self.sendButton setImage:[UIImage imageNamed:@"SendMessageIcon"] forState:UIControlStateNormal];
+    [self.sendButton setTitle:@"" forState:UIControlStateNormal];
+    
+    JSQMessagesTimestampFormatter *formatter = [JSQMessagesTimestampFormatter sharedFormatter];
+    
+    NSMutableDictionary *attribues = [[NSMutableDictionary alloc] initWithDictionary:formatter.dateTextAttributes];
+    [attribues setObject:[UIFont fontWithName:@"Calibri" size:12] forKey:NSFontAttributeName];
+    
+    formatter.dateTextAttributes = [attribues mutableCopy];
+    formatter.timeTextAttributes = [attribues mutableCopy];
     
 }
 
@@ -1434,22 +1458,28 @@ typedef NS_ENUM(int, OTRDropDownType) {
     return nil;
 }
 
+
+
 ////// Optional //////
 
 - (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView attributedTextForCellTopLabelAtIndexPath:(NSIndexPath *)indexPath
 {
     NSMutableAttributedString *text = [[NSMutableAttributedString alloc] init];
     
+    JSQMessagesTimestampFormatter *formatter = [JSQMessagesTimestampFormatter sharedFormatter];
+    
     if ([self showDateAtIndexPath:indexPath]) {
         id <OTRMessageProtocol> message = [self messageAtIndexPath:indexPath];
         NSDate *date = [message date];
         if (date != nil) {
-            [text appendAttributedString: [[JSQMessagesTimestampFormatter sharedFormatter] attributedTimestampForDate:date]];
+            [text appendAttributedString: [formatter attributedTimestampForDate:date]];
+            
+            
         }
     }
     
     if ([self isPushMessageAtIndexPath:indexPath]) {
-        JSQMessagesTimestampFormatter *formatter = [JSQMessagesTimestampFormatter sharedFormatter];
+
         NSString *knockString = KNOCK_SENT_STRING();
         //Add new line if there is already a date string
         if ([text length] > 0) {
@@ -1493,7 +1523,7 @@ typedef NS_ENUM(int, OTRDropDownType) {
     
     UIFont *font = [UIFont fontWithName:kFontAwesomeFont size:12];
     if (!font) {
-        font = [UIFont systemFontOfSize:12];
+        font = [UIFont fontWithName:@"Calibri" size:12];
     }
     NSDictionary *iconAttributes = @{NSFontAttributeName: font};
     NSDictionary *lockAttributes = [iconAttributes copy];
@@ -1555,7 +1585,7 @@ typedef NS_ENUM(int, OTRDropDownType) {
         }
         
         if ([progressString length]) {
-            UIFont *font = [UIFont systemFontOfSize:12];
+            UIFont *font = [UIFont fontWithName:kFontAwesomeFont size:12];
             [attributedString insertAttributedString:[[NSAttributedString alloc] initWithString:progressString attributes:@{NSFontAttributeName: font}] atIndex:insertIndex];
         }
     }
@@ -1565,6 +1595,17 @@ typedef NS_ENUM(int, OTRDropDownType) {
 
 
 #pragma - mark  JSQMessagesCollectionViewDelegateFlowLayout Methods
+
+- (CGSize)collectionView:(JSQMessagesCollectionView *)collectionView
+                  layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    CGSize size = [super collectionView:collectionView layout:collectionViewLayout sizeForItemAtIndexPath:indexPath];
+    id<OTRMessageProtocol,JSQMessageData> message = [self messageAtIndexPath:indexPath];
+    if ([message isMediaMessage]) {
+        return size;
+    }
+    size.height+=4;
+    return size;
+}
 
 - (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
                    layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout
