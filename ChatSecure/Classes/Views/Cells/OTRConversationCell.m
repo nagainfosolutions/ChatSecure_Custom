@@ -47,7 +47,7 @@
         self.conversationLabel = [[UILabel alloc] init];
         self.conversationLabel.translatesAutoresizingMaskIntoConstraints = NO;
         self.conversationLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        self.conversationLabel.numberOfLines = 0;
+        self.conversationLabel.numberOfLines = 1;
         self.conversationLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize] - 2];
         self.conversationLabel.textColor = lightGreyColor;
         
@@ -168,7 +168,8 @@
                             @"dateLabel":self.dateLabel,
                             @"nameLabel":self.nameLabel,
                             @"conversationLabel":self.conversationLabel,
-                            @"accountLabel":self.accountLabel};
+                            @"accountLabel":self.accountLabel,
+                            @"buttonCall":self.buttonCall};
     
     NSDictionary *metrics = @{@"margin":[NSNumber numberWithFloat:OTRBuddyImageCellPadding]};
     if (!self.addedConstraints) {
@@ -179,7 +180,7 @@
                                                                                  metrics:metrics
                                                                                    views:views]];
         
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[imageView]-margin-[conversationLabel]-margin-|"
+        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[imageView]-margin-[conversationLabel]-92-|"
                                                                                  options:0
                                                                                  metrics:metrics
                                                                                    views:views]];
@@ -187,10 +188,10 @@
         [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-margin-[dateLabel]" options:0 metrics:metrics
                                                                                    views:views]];
         
-        NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:self.dateLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:6.0];
+        NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:self.dateLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:16.0];
         [self.contentView addConstraint:bottomConstraint];
         
-        self.buttonCall.frame = CGRectMake(self.frame.size.width - 64.0, 12.0, 32.0, 26.0);
+        self.buttonCall.frame = CGRectMake(self.frame.size.width - 100.0, 8.0, 60.0, 36.0);
 
     }
     
