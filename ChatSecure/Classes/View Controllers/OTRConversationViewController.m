@@ -305,7 +305,6 @@ static CGFloat kOTRConversationCellHeight = 62.0;
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    OTRBuddyImageCell *cell = nil;
     id <OTRThreadOwner> thread = [self threadForIndexPath:indexPath];
     if ([thread isKindOfClass:[OTRXMPPBuddy class]] &&
         ((OTRXMPPBuddy*)thread).hasIncomingSubscriptionRequest) {
@@ -318,27 +317,24 @@ static CGFloat kOTRConversationCellHeight = 62.0;
                 [self handleSubscriptionRequest:request approved:approved];
             }
         }];
-        cell = approvalCell;
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        approvalCell.selectionStyle = UITableViewCellSelectionStyleNone;
+        [approvalCell.avatarImageView.layer setCornerRadius:(kOTRConversationCellHeight-2.0*OTRBuddyImageCellPadding)/2.0];
+        [approvalCell setThread:thread];
+        return approvalCell;
     } else {
-        OTRConversationCell *conversationCell = (OTRConversationCell *)[tableView dequeueReusableCellWithIdentifier:[OTRConversationCell reuseIdentifier] forIndexPath:indexPath];
-        conversationCell.buttonCall.tag = indexPath.row;
-        conversationCell.buttonCall.accessibilityIdentifier = [NSString stringWithFormat:@"%ld", (long)indexPath.section];
+        OTRConversationCell *conversationCell = [tableView dequeueReusableCellWithIdentifier:[OTRConversationCell reuseIdentifier] forIndexPath:indexPath];
         [conversationCell.buttonCall addTarget:self action:@selector(buttonActionVoiceCall:) forControlEvents:UIControlEventTouchUpInside];
-        cell = conversationCell;
-        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+        conversationCell.selectionStyle = UITableViewCellSelectionStyleDefault;
+        [conversationCell.avatarImageView.layer setCornerRadius:(kOTRConversationCellHeight-2.0*OTRBuddyImageCellPadding)/2.0];
+        [conversationCell setThread:thread];
+        conversationCell.buttonCall.accessibilityIdentifier = [thread isKindOfClass:[OTRXMPPBuddy class]] ? [(OTRXMPPBuddy *)thread username] : @"0";
+        return conversationCell;
     }
-    
-    [cell.avatarImageView.layer setCornerRadius:(kOTRConversationCellHeight-2.0*OTRBuddyImageCellPadding)/2.0];
-    
-    [cell setThread:thread];
-    
-    return cell;
 }
 
 
 -(void)buttonActionVoiceCall:(UIButton *)sender {
-    id  thread = [self threadForIndexPath:[NSIndexPath indexPathForRow:sender.tag inSection:(NSInteger)sender.accessibilityIdentifier]];
+    NSString *userName = [sender accessibilityIdentifier];
     
 }
 

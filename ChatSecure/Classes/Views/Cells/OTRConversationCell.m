@@ -110,7 +110,6 @@
     } else {
         self.nameLabel.textColor = [UIColor darkGrayColor];
     }
-    
     [self updateDateString:lastMessage.date];
 }
 
