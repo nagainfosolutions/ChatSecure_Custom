@@ -485,11 +485,13 @@ typedef NS_ENUM(int, OTRDropDownType) {
     }];
     
     titleView.titleLabel.text = [thread threadName];
+    titleView.titleLabel.font = [UIFont fontWithName:@"Calibri" size:20.0];
+    titleView.titleLabel.textColor = [UIColor whiteColor];
     
     UIImage *statusImage = nil;
     if ([thread isKindOfClass:[OTRBuddy class]]) {
         OTRBuddy *buddy = (OTRBuddy*)thread;
-        titleView.subtitleLabel.text = buddy.username;
+        titleView.subtitleLabel.text = @"";
         UIColor *color = [buddy avatarBorderColor];
         if (color) { // only show online status
             statusImage = [OTRImages circleWithRadius:50
@@ -497,10 +499,6 @@ typedef NS_ENUM(int, OTRDropDownType) {
                                       lineColor:nil
                                       fillColor:color];
         }
-    } else if ([thread isGroupThread]) {
-        titleView.subtitleLabel.text = GROUP_CHAT_STRING();
-    } else {
-        titleView.subtitleLabel.text = nil;
     }
     
     titleView.titleImageView.image = statusImage;
