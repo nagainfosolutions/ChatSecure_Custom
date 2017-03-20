@@ -38,6 +38,7 @@
 #import "OTRXMPPPresenceSubscriptionRequest.h"
 #import "OTRBuddyApprovalCell.h"
 
+
 static CGFloat kOTRConversationCellHeight = 62.0;
 
 @interface OTRConversationViewController () <OTRYapViewHandlerDelegateProtocol, OTRAccountDatabaseCountDelegate >
@@ -135,10 +136,26 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     [self updateTitle];
     self.cellUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:60.0 target:self selector:@selector(updateVisibleCells:) userInfo:nil repeats:YES];
     
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(navigateToChatPage:) name:@"USER_SELECTON_NOTIFICATION" object:nil];
     [self updateComposeButton:self.accountCounter.numberOfAccounts];
+    
 }
+-(void)navigateToChatPage:(NSNotification *)notisfication{
+    NSDictionary *dict = notisfication.userInfo;
+    //id <OTRThreadOwner> thread = [dict objectForKey:@"thread"];
+    
+    // Bail out if it's a subscription request
+//    if ([thread isKindOfClass:[OTRXMPPBuddy class]] &&
+//        ((OTRXMPPBuddy*)thread).hasIncomingSubscriptionRequest) {
+//        return;
+//    }
+    
+    if ([self.delegate respondsToSelector:@selector(conversationViewController:didSelectThread:)]) {
+        [self.delegate conversationViewController:self didSelectThread:[dict objectForKey:@"thread"]];
+    }
+    
 
+}
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
@@ -369,6 +386,7 @@ static CGFloat kOTRConversationCellHeight = 62.0;
         [self.delegate conversationViewController:self didSelectThread:thread];
     }
 }
+
 
 #pragma - mark OTRAccountDatabaseCountDelegate method
 
