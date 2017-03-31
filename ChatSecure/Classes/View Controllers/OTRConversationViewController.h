@@ -29,4 +29,6 @@
 
 @property (nonatomic, strong) UITableView *tableView;
 
+-(void)buttonActionVoiceCall:(UIButton *)sender;
+
 @end

@@ -354,6 +354,8 @@ static CGFloat kOTRConversationCellHeight = 62.0;
 -(void)buttonActionVoiceCall:(UIButton *)sender {
     NSString *userName = [sender accessibilityIdentifier];
     NSLog(@"%@", userName);
+//    LinphoneAddress *addr = linphone_address_new(@"5010".UTF8String);
+//				[LinphoneManager.instance call:addr];
 }
 
 
