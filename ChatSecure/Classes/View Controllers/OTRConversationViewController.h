@@ -29,6 +29,8 @@
 
 @property (nonatomic, strong) UITableView *tableView;
 
+@property (nonatomic) BOOL hasPresentedOnboarding;
+
 -(void)buttonActionVoiceCall:(UIButton *)sender;
 
 @end

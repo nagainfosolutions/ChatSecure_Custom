@@ -48,8 +48,6 @@ static CGFloat kOTRConversationCellHeight = 62.0;
 
 @property (nonatomic, strong) UIBarButtonItem *composeBarButtonItem;
 
-@property (nonatomic) BOOL hasPresentedOnboarding;
-
 @property (nonatomic, strong) OTRAccountDatabaseCount *accountCounter;
 
 @end
@@ -150,7 +148,6 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     NSString *name = [ userInfo valueForKey:@"name"];
     NSString *unique_id =  [userInfo valueForKey:@"account_id"];
     OTRMessagesGroupViewController *VC = [[OTRMessagesGroupViewController alloc]init];
-    
     [VC setupWithBuddies:buddies accountId:unique_id name:name];
     [self.navigationController pushViewController:VC animated:true];
 }
