@@ -96,6 +96,8 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     [self updateTitle];
     
     self.accountCounter = [[OTRAccountDatabaseCount alloc] initWithDatabaseConnection:[OTRDatabaseManager sharedInstance].longLivedReadOnlyConnection delegate:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(navigateToGroupChat:) name:@"CREATE_GROUP_NOTIFICATION" object:nil];
+     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(navigateToChatPage:) name:@"USER_SELECTON_NOTIFICATION" object:nil];
 }
 
 - (void) showOnboardingIfNeeded {
@@ -136,8 +138,8 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     [self updateTitle];
     self.cellUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:60.0 target:self selector:@selector(updateVisibleCells:) userInfo:nil repeats:YES];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(navigateToChatPage:) name:@"USER_SELECTON_NOTIFICATION" object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(navigateToGroupChat:) name:@"CREATE_GROUP_NOTIFICATION" object:nil];
+   
+    
     [self updateComposeButton:self.accountCounter.numberOfAccounts];
     
 }
