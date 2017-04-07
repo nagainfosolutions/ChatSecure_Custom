@@ -59,6 +59,8 @@ extern NSString *const OTRXMPPTorImageName;
 @property (nonatomic, strong) NSString *profilePictureThumb;
 @property (nonatomic, strong) NSString *mediaPath;
 @property (nonatomic, strong) NSString *accessToken;
+@property (nonatomic, strong) NSString *fullName;
+
 
 /** 
  * To remove the keychain password, you must explicitly call removeKeychainPassword
