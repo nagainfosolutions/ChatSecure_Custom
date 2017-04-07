@@ -137,9 +137,23 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     self.cellUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:60.0 target:self selector:@selector(updateVisibleCells:) userInfo:nil repeats:YES];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(navigateToChatPage:) name:@"USER_SELECTON_NOTIFICATION" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(navigateToGroupChat:) name:@"CREATE_GROUP_NOTIFICATION" object:nil];
     [self updateComposeButton:self.accountCounter.numberOfAccounts];
     
 }
+
+-(void)navigateToGroupChat:(NSNotification *)notification{
+    NSDictionary *userInfo = notification.userInfo;
+    NSArray *buddies = [ userInfo valueForKey:@"buddies"];
+    NSString *name = [ userInfo valueForKey:@"name"];
+    NSString *unique_id =  [userInfo valueForKey:@"account_id"];
+    OTRMessagesGroupViewController *VC = [[OTRMessagesGroupViewController alloc]init];
+    
+    [VC setupWithBuddies:buddies accountId:unique_id name:name];
+    [self.navigationController pushViewController:VC animated:true];
+}
+
+
 -(void)navigateToChatPage:(NSNotification *)notisfication{
     NSDictionary *dict = notisfication.userInfo;
     //id <OTRThreadOwner> thread = [dict objectForKey:@"thread"];
