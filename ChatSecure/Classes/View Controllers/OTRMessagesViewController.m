@@ -64,6 +64,56 @@ typedef NS_ENUM(int, OTRDropDownType) {
     OTRDropDownTypePush          = 2
 };
 
+@interface VROCache : NSObject
+
++ (VROCache*)sharedInstance;
+
+// set
+- (void)cacheImage:(JSQMessagesAvatarImage*)image forKey:(NSString*)key;
+// get
+- (JSQMessagesAvatarImage*)getImage:(NSString*)key;
+
+@end
+
+
+static VROCache *sharedInstance;
+
+@interface VROCache ()
+@property (nonatomic, strong) NSCache *imageCache;
+@end
+
+@implementation VROCache
+
++ (VROCache*)sharedInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[VROCache alloc] init];
+    });
+    return sharedInstance;
+}
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.imageCache = [[NSCache alloc] init];
+    }
+    return self;
+}
+
+- (void)cacheImage:(JSQMessagesAvatarImage*)image forKey:(NSString*)key {
+    [self.imageCache setObject:image forKey:key];
+}
+
+- (JSQMessagesAvatarImage*)getImage:(NSString*)key {
+    return [self.imageCache objectForKey:key];
+}
+
+-(void)removeAllImages {
+    [self.imageCache removeAllObjects];
+}
+
+@end
+
+
 @interface OTRMessagesViewController () <UITextViewDelegate, OTRAttachmentPickerDelegate, OTRYapViewHandlerDelegateProtocol, OTRMessagesCollectionViewFlowLayoutSizeProtocol>
 
 @property (nonatomic, strong) OTRYapViewHandler *viewHandler;
@@ -115,6 +165,8 @@ typedef NS_ENUM(int, OTRDropDownType) {
     self.outgoingBubbleImage = [bubbleImageFactory outgoingMessagesBubbleImageWithColor:greenColor];
     self.incomingBubbleImage = [bubbleImageFactory incomingMessagesBubbleImageWithColor:[UIColor lightGrayColor]];
     
+    VROCache *cache = [VROCache sharedInstance];
+    [cache removeAllImages];
     
     
     ////// TitleView //////
@@ -196,6 +248,7 @@ typedef NS_ENUM(int, OTRDropDownType) {
     self.collectionView.loadEarlierMessagesHeaderTextColor = greenColor;
     self.collectionView.typingIndicatorEllipsisColor = [UIColor whiteColor];
     self.collectionView.typingIndicatorMessageBubbleColor = greenColor;
+    self.collectionView.typingIndicatorDisplaysOnLeft = NO;
     self.inputToolbar.contentView.textView.layer.cornerRadius = self.inputToolbar.contentView.textView.frame.size.height/2;
     self.inputToolbar.contentView.textView.font = [UIFont fontWithName:@"Calibri" size:self.inputToolbar.contentView.textView.font.pointSize];
     
@@ -420,6 +473,7 @@ typedef NS_ENUM(int, OTRDropDownType) {
         });
         
         [self refreshTitleView:[self titleView]];
+        [self scrollToBottomAnimated:YES];
     }
     
     [self tryToMarkAllMessagesAsRead];
@@ -1429,19 +1483,30 @@ typedef NS_ENUM(int, OTRDropDownType) {
     if ([message isKindOfClass:[PushMessage class]]) {
         return nil;
     }
-    
+    VROCache *cache = [VROCache sharedInstance];
+    JSQMessagesAvatarImage *image = [cache getImage:[message threadId]];
+    if (image) {
+        return image;
+    }
     UIImage *avatarImage = nil;
     if ([message messageError] || ![self isMessageTrusted:message]) {
-        avatarImage = [OTRImages circleWarningWithColor:[OTRColors warnColor]];
-    }
-    else if ([message messageIncoming]) {
+        JSQMessagesAvatarImage *warnImage = [cache getImage:@"warnImage"];
+        if (warnImage) {
+            return warnImage;
+        } else {
+            avatarImage = [OTRImages circleWarningWithColor:[OTRColors warnColor]];
+            NSUInteger diameter = MIN(avatarImage.size.width, avatarImage.size.height);
+            warnImage = [JSQMessagesAvatarImageFactory avatarImageWithImage:avatarImage diameter:diameter];
+            [cache cacheImage:warnImage forKey:@"warnImage"];
+            return warnImage;
+        }
+    } else if ([message messageIncoming]) {
         __block OTRBuddy *buddy = nil;
         [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
             buddy = [self buddyWithTransaction:transaction];
         }];
         avatarImage = [buddy avatarImage];
-    }
-    else {
+    } else {
         __block OTRAccount *account = nil;
         [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
             account = [self accountWithTransaction:transaction];
@@ -1451,7 +1516,9 @@ typedef NS_ENUM(int, OTRDropDownType) {
     
     if (avatarImage) {
         NSUInteger diameter = MIN(avatarImage.size.width, avatarImage.size.height);
-        return [JSQMessagesAvatarImageFactory avatarImageWithImage:avatarImage diameter:diameter];
+        image = [JSQMessagesAvatarImageFactory avatarImageWithImage:avatarImage diameter:diameter];
+        [cache cacheImage:image forKey:[message threadId]];
+        return image;
     }
     return nil;
 }
