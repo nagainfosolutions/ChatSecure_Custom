@@ -1,25 +1,27 @@
 //
-//  OTRConversationCell.h
-//  Off the Record
+//  OTRConversationCelll.h
+//  ChatSecure
 //
-//  Created by David Chiles on 3/3/14.
-//  Copyright (c) 2014 Chris Ballinger. All rights reserved.
+//  Created by Bose on 11/04/17.
+//  Copyright © 2017 Chris Ballinger. All rights reserved.
 //
 
 #import "OTRBuddyImageCell.h"
 
-@interface OTRConversationCell : OTRBuddyImageCell
+@interface OTRConversationCell : UITableViewCell
 
-@property (nonatomic, strong) UILabel *nameLabel;
-@property (nonatomic, strong) UILabel *dateLabel;
-@property (nonatomic, strong) UIButton *buttonCall;
-@property (nonatomic, strong) UILabel *conversationLabel;
-@property (nonatomic, strong) UILabel *accountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+@property (weak, nonatomic) IBOutlet UIButton *buttonCall;
+@property (weak, nonatomic) IBOutlet UILabel *conversationLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *avatarImageView;
+@property (weak, nonatomic) IBOutlet UIButton *buttonUnreadCount;
 
+@property (nonatomic, strong) UIColor *imageViewBorderColor;
 
-
-@property (nonatomic) BOOL showAccountLabel;
 
 - (void)updateDateString:(NSDate *)date;
+- (void)setThread:(id <OTRThreadOwner>)thread;
++ (NSString *)reuseIdentifier;
 
 @end

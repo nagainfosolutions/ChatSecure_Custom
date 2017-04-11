@@ -77,7 +77,7 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     self.tableView.rowHeight = kOTRConversationCellHeight;
     [self.view addSubview:self.tableView];
     
-    [self.tableView registerClass:[OTRConversationCell class] forCellReuseIdentifier:[OTRConversationCell reuseIdentifier]];
+    [self.tableView registerNib:[UINib nibWithNibName:@"OTRConversationCell" bundle:[NSBundle bundleWithIdentifier:@"org.chatsecure.ChatSecureCore"]] forCellReuseIdentifier:[OTRConversationCell reuseIdentifier]];
     [self.tableView registerClass:[OTRBuddyApprovalCell class] forCellReuseIdentifier:[OTRBuddyApprovalCell reuseIdentifier]];
     [self.tableView registerClass:[OTRBuddyInfoCell class] forCellReuseIdentifier:[OTRBuddyInfoCell reuseIdentifier]];
     
@@ -354,9 +354,12 @@ static CGFloat kOTRConversationCellHeight = 62.0;
         return approvalCell;
     } else {
         OTRConversationCell *conversationCell = [tableView dequeueReusableCellWithIdentifier:[OTRConversationCell reuseIdentifier] forIndexPath:indexPath];
+        if (conversationCell == nil) {
+            conversationCell = [[[NSBundle bundleWithIdentifier:@"org.chatsecure.ChatSecureCore"] loadNibNamed:@"OTRConversationCell" owner:self options:nil] objectAtIndex:0];
+        }
         [conversationCell.buttonCall addTarget:self action:@selector(buttonActionVoiceCall:) forControlEvents:UIControlEventTouchUpInside];
         conversationCell.selectionStyle = UITableViewCellSelectionStyleDefault;
-        [conversationCell.avatarImageView.layer setCornerRadius:(kOTRConversationCellHeight-2.0*OTRBuddyImageCellPadding)/2.0];
+        [conversationCell.avatarImageView.layer setCornerRadius:(conversationCell.avatarImageView.frame.size.height)/2.0];
         [conversationCell setThread:thread];
         conversationCell.buttonCall.accessibilityIdentifier = [thread isKindOfClass:[OTRXMPPBuddy class]] ? [(OTRXMPPBuddy *)thread username] : @"0";
         return conversationCell;

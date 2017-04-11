@@ -93,6 +93,7 @@ const CGFloat OTRBuddyImageCellPadding = 12.0;
     [super updateConstraints];
 }
 
+
 + (NSString *)reuseIdentifier
 {
     return NSStringFromClass([self class]);

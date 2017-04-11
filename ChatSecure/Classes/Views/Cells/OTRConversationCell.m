@@ -1,11 +1,10 @@
 //
-//  OTRConversationCell.m
-//  Off the Record
+//  OTRConversationCelll.m
+//  ChatSecure
 //
-//  Created by David Chiles on 3/3/14.
-//  Copyright (c) 2014 Chris Ballinger. All rights reserved.
+//  Created by Bose on 11/04/17.
+//  Copyright © 2017 Chris Ballinger. All rights reserved.
 //
-
 #import "OTRConversationCell.h"
 #import "OTRBuddy.h"
 #import "OTRAccount.h"
@@ -13,76 +12,85 @@
 #import "OTROutgoingMessage.h"
 #import "OTRDatabaseManager.h"
 #import "OTRTheme.h"
+#import "OTRColors.h"
+
 @import YapDatabase;
+@import PureLayout;
+@import OTRAssets;
 
 
 @interface OTRConversationCell ()
 
-@property (nonatomic, strong) NSArray *verticalConstraints;
-@property (nonatomic, strong) NSArray *accountHorizontalConstraints;
 
 @end
 
+
 @implementation OTRConversationCell
 
-- (id) initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
-{
-    if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
-        self.showAccountLabel = NO;
-        
-        UIColor *themeColor = [OTRTheme colorWithHexString:DEFAULT_ZOM_COLOR];
-        
-        UIColor *lightGreyColor = [UIColor colorWithWhite:.6 alpha:1.0];
-        self.dateLabel = [[UILabel alloc] init];
-        self.dateLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize] - 2];
-        self.dateLabel.textColor = themeColor;
-        self.dateLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        
-        self.nameLabel = [[UILabel alloc] init];
-        self.nameLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont systemFontSize]];
+@synthesize imageViewBorderColor = _imageViewBorderColor;
 
-        self.nameLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        self.nameLabel.textColor = [UIColor darkGrayColor];
-        
-        self.conversationLabel = [[UILabel alloc] init];
-        self.conversationLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        self.conversationLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        self.conversationLabel.numberOfLines = 1;
-        self.conversationLabel.font = [UIFont fontWithName:@"Calibri" size:[UIFont smallSystemFontSize] - 2];
-        self.conversationLabel.textColor = lightGreyColor;
-        
-        self.accountLabel = [[UILabel alloc] init];
-        self.accountLabel.translatesAutoresizingMaskIntoConstraints = NO;
-        
-        self.buttonCall = [UIButton buttonWithType:UIButtonTypeCustom];
-        
-        [self.buttonCall setImage:[UIImage imageNamed:@"VoiceCallIcon"] forState:UIControlStateNormal];
-        [self.buttonCall.imageView setContentMode:UIViewContentModeScaleAspectFit];
-        
-        [self.contentView addSubview:self.buttonCall];
-        [self.contentView addSubview:self.dateLabel];
-        [self.contentView addSubview:self.nameLabel];
-        [self.contentView addSubview:self.conversationLabel];
-        
-    }
-    return self;
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    [self.buttonCall setImage:[UIImage imageNamed:@"VoiceCallIcon"] forState:UIControlStateNormal];
+    [self.buttonCall.imageView setContentMode:UIViewContentModeScaleAspectFit];
+
+    CALayer *cellImageLayer = self.avatarImageView.layer;
+    cellImageLayer.borderWidth = 0.0;
+    
+    [cellImageLayer setMasksToBounds:YES];
+    [cellImageLayer setBorderColor:[self.imageViewBorderColor CGColor]];
+    self.buttonUnreadCount.backgroundColor = [UIColor redColor];
+    
 }
 
-- (void)setShowAccountLabel:(BOOL)showAccountLabel
-{
-    _showAccountLabel = showAccountLabel;
+
+-(void)layoutSubviews {
+    [super layoutSubviews];
+    UIBezierPath *maskPath = [UIBezierPath
+                              bezierPathWithRoundedRect:self.buttonUnreadCount.bounds
+                              byRoundingCorners:UIRectCornerTopRight
+                              cornerRadii:CGSizeMake(self.buttonUnreadCount.bounds.size.height * 2, self.buttonUnreadCount.bounds.size.height * 2)
+                              ];
     
-    if (!self.showAccountLabel) {
-        [self.accountLabel removeFromSuperview];
-    }
-    else {
-        [self.contentView addSubview:self.accountLabel];
-    }
+    CAShapeLayer *maskLayer = [CAShapeLayer layer];
+    
+    maskLayer.frame = self.bounds;
+    maskLayer.path = maskPath.CGPath;
+    
+    self.buttonUnreadCount.layer.mask = maskLayer;
+}
+
+
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
 }
 
 - (void)setThread:(id <OTRThreadOwner>)thread
 {
-    [super setThread:thread];
+   // [super setThread:thread];
+    
+    UIImage *avatarImage = [thread avatarImage];
+    if(avatarImage) {
+        self.avatarImageView.image = avatarImage;
+    }
+    else {
+        self.avatarImageView.image = [self defaultImage];
+    }
+    UIColor *statusColor =  [OTRColors colorWithStatus:[thread currentStatus]];
+    if (statusColor) {
+        self.avatarImageView.layer.borderWidth = 1.5;
+    } else {
+        self.avatarImageView.layer.borderWidth = 0.0;
+    }
+    self.imageViewBorderColor = statusColor;
+    
+    
     NSString * nameString = [thread threadName];
     
     self.nameLabel.text = nameString;
@@ -97,20 +105,37 @@
         lastMessage = [thread lastMessageWithTransaction:transaction];
     }];
     
-    self.accountLabel.text = account.username;
     
-//    UIFont *currentFont = self.nameLabel.font;
-//    CGFloat fontSize = currentFont.pointSize;
+    //    UIFont *currentFont = self.nameLabel.font;
+    //    CGFloat fontSize = currentFont.pointSize;
     
     self.conversationLabel.text = lastMessage.text;
     
     if (unreadMessages > 0) {
         //unread message
+        [self.buttonUnreadCount setTitle:[NSString stringWithFormat:@"%lu", (unsigned long)unreadMessages] forState:UIControlStateNormal];
+        self.buttonUnreadCount.hidden = NO;
         self.nameLabel.textColor = [UIColor blackColor];
     } else {
+        self.buttonUnreadCount.hidden = YES;
         self.nameLabel.textColor = [UIColor darkGrayColor];
     }
     [self updateDateString:lastMessage.date];
+}
+
+- (UIColor *)imageViewBorderColor
+{
+    if (!_imageViewBorderColor) {
+        _imageViewBorderColor = [UIColor blackColor];
+    }
+    return _imageViewBorderColor;
+}
+
+- (void)setImageViewBorderColor:(UIColor *)imageViewBorderColor
+{
+    _imageViewBorderColor = imageViewBorderColor;
+    
+    [self.avatarImageView.layer setBorderColor:[_imageViewBorderColor CGColor]];
 }
 
 - (void)updateDateString:(NSDate *)date
@@ -146,7 +171,7 @@
     else if (timeInterval < 60*60*25*365) {
         NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
         dateFormatter.dateFormat = [NSDateFormatter dateFormatFromTemplate:@"dMMM" options:0
-                                                                   locale:[NSLocale currentLocale]];
+                                                                    locale:[NSLocale currentLocale]];
         dateString = [dateFormatter stringFromDate:messageDate];
     }
     else {
@@ -161,75 +186,16 @@
     return dateString;
 }
 
-- (void)updateConstraints
-{
-    NSDictionary *views = @{@"imageView": self.avatarImageView,
-                            @"conversationLabel": self.conversationLabel,
-                            @"dateLabel":self.dateLabel,
-                            @"nameLabel":self.nameLabel,
-                            @"conversationLabel":self.conversationLabel,
-                            @"accountLabel":self.accountLabel,
-                            @"buttonCall":self.buttonCall};
-    
-    NSDictionary *metrics = @{@"margin":[NSNumber numberWithFloat:OTRBuddyImageCellPadding]};
-    if (!self.addedConstraints) {
-        
-        
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[imageView]-margin-[nameLabel]->=0-[dateLabel]-margin-|"
-                                                                                 options:0
-                                                                                 metrics:metrics
-                                                                                   views:views]];
-        
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[imageView]-margin-[conversationLabel]-92-|"
-                                                                                 options:0
-                                                                                 metrics:metrics
-                                                                                   views:views]];
-        
-        [self.contentView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-margin-[dateLabel]" options:0 metrics:metrics
-                                                                                   views:views]];
-        
-        NSLayoutConstraint *bottomConstraint = [NSLayoutConstraint constraintWithItem:self.dateLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:16.0];
-        [self.contentView addConstraint:bottomConstraint];
-        
-        self.buttonCall.frame = CGRectMake(self.frame.size.width - 100.0, 8.0, 60.0, 36.0);
 
-    }
-    
-    if([self.accountHorizontalConstraints count])
-    {
-        [self.contentView removeConstraints:self.accountHorizontalConstraints];
-    }
-    
-    if([self.verticalConstraints count]) {
-        [self.contentView removeConstraints:self.verticalConstraints];
-    }
-    
-    if (self.showAccountLabel) {
-        self.accountHorizontalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:[imageView]-margin-[accountLabel]|"
-                                                                                    options:0
-                                                                                    metrics:metrics
-                                                                                      views:views];
-        
-        self.verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-margin-[nameLabel][conversationLabel][accountLabel]-margin-|"
-                                                                           options:0
-                                                                           metrics:metrics
-                                                                             views:views];
-        
-    }
-    else {
-        self.accountHorizontalConstraints = @[];
-        
-        self.verticalConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-margin-[nameLabel(15)][conversationLabel]-margin-|"
-                                                                           options:0
-                                                                           metrics:metrics
-                                                                             views:views];
-    }
-    if([self.accountHorizontalConstraints count]) {
-        [self.contentView addConstraints:self.accountHorizontalConstraints];
-    }
-    
-    [self.contentView addConstraints:self.verticalConstraints];
-    [super updateConstraints];
+- (UIImage *)defaultImage
+{
+    return [UIImage imageNamed:@"person" inBundle:[OTRAssets resourcesBundle] compatibleWithTraitCollection:nil];
 }
+
++ (NSString *)reuseIdentifier
+{
+    return NSStringFromClass([self class]);
+}
+
 
 @end

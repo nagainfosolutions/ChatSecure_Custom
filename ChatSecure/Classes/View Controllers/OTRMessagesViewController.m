@@ -427,6 +427,8 @@ static VROCache *sharedInstance;
     return (OTRXMPPManager *)[[OTRProtocolManager sharedInstance] protocolForAccount:account];
 }
 
+
+
 - (void)updateViewWithKey:(NSString *)key collection:(NSString *)collection
 {
     if ([collection isEqualToString:[OTRBuddy collection]]) {
@@ -471,12 +473,20 @@ static VROCache *sharedInstance;
             });
             
         });
-        
-        [self refreshTitleView:[self titleView]];
         [self scrollToBottomAnimated:YES];
+        [self refreshTitleView:[self titleView]];
     }
     
     [self tryToMarkAllMessagesAsRead];
+}
+
+-(void)scrollToBottomAnimated:(BOOL)animated {
+//    if (self.showTypingIndicator) {
+//        CGPoint bottomOffset = CGPointMake(0, (self.collectionView.contentSize.height - (self.view.frame.size.height - (self.inputToolbar.frame.origin.y + self.inputToolbar.frame.size.height))));
+//        [self.collectionView setContentOffset:bottomOffset animated:YES];
+//    } else {
+        [super scrollToBottomAnimated:animated];
+//    }
 }
 
 - (void)tryToMarkAllMessagesAsRead {
@@ -629,7 +639,7 @@ static VROCache *sharedInstance;
 }
 
 - (void)didTapAvatar:(id<OTRMessageProtocol>)message sender:(id)sender {
-    NSError *error =  [message messageError];
+    /*NSError *error =  [message messageError];
     NSString *title = nil;
     NSString *alertMessage = nil;
     
@@ -702,7 +712,7 @@ static VROCache *sharedInstance;
             alertController.popoverPresentationController.sourceRect = sourceView.bounds;
         }
         [self presentViewController:alertController animated:YES completion:nil];
-    }
+    }*/
 }
 
 - (BOOL)isMessageTrusted:(id <OTRMessageProtocol>)message {
@@ -1594,15 +1604,15 @@ static VROCache *sharedInstance;
     NSDictionary *lockAttributes = [iconAttributes copy];
     
     ////// Lock Icon //////
-    NSString *lockString = nil;
-    if (message.messageSecurity == OTRMessageTransportSecurityOTR) {
-        lockString = [NSString stringWithFormat:@"%@ OTR ",[NSString fa_stringForFontAwesomeIcon:FALock]];
-    } else if (message.messageSecurity == OTRMessageTransportSecurityOMEMO) {
-        lockString = [NSString stringWithFormat:@"%@ OMEMO ",[NSString fa_stringForFontAwesomeIcon:FALock]];
-    }
-    else {
-        lockString = [NSString fa_stringForFontAwesomeIcon:FAUnlock];
-    }
+//    NSString *lockString = nil;
+//    if (message.messageSecurity == OTRMessageTransportSecurityOTR) {
+//        lockString = [NSString stringWithFormat:@"%@ OTR ",[NSString fa_stringForFontAwesomeIcon:FALock]];
+//    } else if (message.messageSecurity == OTRMessageTransportSecurityOMEMO) {
+//        lockString = [NSString stringWithFormat:@"%@ OMEMO ",[NSString fa_stringForFontAwesomeIcon:FALock]];
+//    }
+//    else {
+//        lockString = [NSString fa_stringForFontAwesomeIcon:FAUnlock];
+//    }
     
     BOOL trusted = YES;
     if([message isKindOfClass:[OTRBaseMessage class]]) {
@@ -1615,7 +1625,8 @@ static VROCache *sharedInstance;
         lockAttributes = mutableCopy;
     }
     
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:lockString attributes:lockAttributes];
+//    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:lockString attributes:lockAttributes];
+    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:@"" attributes:lockAttributes];
 
     if ([message isKindOfClass:[OTROutgoingMessage class]]) {
         OTROutgoingMessage *outgoingMessage = (OTROutgoingMessage *)message;
