@@ -66,7 +66,6 @@
 #import <KSCrash/KSCrash.h>
 #import <KSCrash/KSCrashInstallationQuincyHockey.h>
 #import <KSCrash/KSCrashInstallation+Alert.h>
-@import UserNotifications;
 
 #import "OTRChatDemo.h"
 

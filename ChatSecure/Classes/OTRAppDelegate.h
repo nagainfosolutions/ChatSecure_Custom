@@ -25,6 +25,7 @@
 #import "OTRTheme.h"
 #import "OTRMessagesViewController.h"
 #import "OTRConversationViewController.h"
+#import <UserNotifications/UserNotifications.h>
 @class PushController;
 @class PushOTRListener;
 @protocol OTRThreadOwner;
@@ -49,11 +50,14 @@
 + (instancetype)appDelegate;
 
 - (UIViewController *)visibleViewController;
-
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler;
+- (void) userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler;
+- (void)application:(UIApplication *)app didRegisterForRemoteNotificationsWithDeviceToken:(nonnull NSData *)deviceToken;
 #pragma mark Theming
 
 @property (nonatomic, strong, readonly) OTRTheme *theme;
 /** Override this in subclass to use a different theme class */
 - (Class) themeClass;
+
 
 @end
