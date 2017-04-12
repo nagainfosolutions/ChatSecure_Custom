@@ -33,6 +33,7 @@
 @property (nonatomic, strong, nullable) UIButton *microphoneButton;
 @property (nonatomic, strong, nullable) UIButton *sendButton;
 @property (nonatomic, strong, nullable) UIButton *cameraButton;
+@property (nonatomic, assign) BOOL isViewAppear;
 
 @property (nonatomic, strong, nonnull, readonly) MessagesViewControllerState *state;
 

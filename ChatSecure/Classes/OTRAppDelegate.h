@@ -48,6 +48,7 @@
 
 + (instancetype)appDelegate;
 
+- (UIViewController *)visibleViewController;
 
 #pragma mark Theming
 

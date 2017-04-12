@@ -92,7 +92,10 @@ static NSUInteger const OTRDefaultPortNumber = 5222;
         self.avatarData = self.vCardTemp.photo;
     }
     if (self.vCardTemp.nickname.length) {
-        self.displayName = self.vCardTemp.nickname;
+        NSString *userId = [[self.username componentsSeparatedByString:@"@"] firstObject];
+        if (![self.vCardTemp.nickname isEqualToString:userId]) {
+            self.displayName = self.vCardTemp.nickname;
+        }
     } else if (self.vCardTemp.formattedName.length) {
         self.displayName = self.vCardTemp.formattedName;
     }

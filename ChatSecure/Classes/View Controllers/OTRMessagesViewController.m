@@ -275,7 +275,7 @@ static VROCache *sharedInstance;
 {
     [super viewWillAppear:animated];
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
-    
+    self.isViewAppear = YES;
     __weak typeof(self)weakSelf = self;
     
     void (^refreshGeneratingLock)(OTRAccount *) = ^void(OTRAccount * account) {
@@ -327,7 +327,8 @@ static VROCache *sharedInstance;
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    
+    self.isViewAppear = NO;
+
     [self saveCurrentMessageText:self.inputToolbar.contentView.textView.text threadKey:self.threadKey colleciton:self.threadCollection];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self.messageStateDidChangeNotificationObject];
