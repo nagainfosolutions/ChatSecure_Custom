@@ -37,6 +37,7 @@
 #import "OTRXMPPRoomManager.h"
 #import "OTRXMPPPresenceSubscriptionRequest.h"
 #import "OTRBuddyApprovalCell.h"
+#import <AFNetworking/AFNetworking.h>
 
 
 static CGFloat kOTRConversationCellHeight = 62.0;
@@ -221,19 +222,90 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     
     id <OTRThreadOwner> thread = nil;
     
+    
     // Create a fake buddy for subscription requests
     if ([object isKindOfClass:[OTRXMPPPresenceSubscriptionRequest class]]) {
         OTRXMPPPresenceSubscriptionRequest *request = object;
         OTRXMPPBuddy *buddy = [[OTRXMPPBuddy alloc] init];
         buddy.hasIncomingSubscriptionRequest = YES;
-        buddy.displayName = request.displayName;
+        NSString *userId = [[request.jid componentsSeparatedByString:@"@"] firstObject];
+        if (userId) {
+            if (request.displayName == nil || [request.displayName isEqualToString:@""]) {
+                request.displayName = @"Unkown buddy";
+                [self getmyUserDataFromVROServer:userId success:^(id responseObject) {
+                    request.displayName = [responseObject valueForKeyPath:@"data.full_name"];
+                    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+                } failure:^(NSError *error) {
+                    request.displayName = @"";
+                    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+                }];
+            }
+        } else {
+            request.displayName = @"Unkown buddy";
+        }
         buddy.username = request.jid;
+        buddy.displayName = request.displayName;
         thread = buddy;
     } else {
         thread = object;
     }
     
     return thread;
+}
+
+-(void)getmyUserDataFromVROServer:(NSString *)userId success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure{
+    //    if (!userId) {
+    //        failure(nil);
+    //    }
+    NSOperationQueue *apiOperationQueue = [[NSOperationQueue alloc]init];
+    apiOperationQueue.maxConcurrentOperationCount = 2;
+    [apiOperationQueue addOperationWithBlock:^{
+        NSString *urlString  ;
+        urlString = [NSString stringWithFormat:@"users/%@",userId];
+        AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://vrocloud.com/vro_v3/v1/"]];
+        manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+        [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+        [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        OTRAccount *account = [self getDefaultAccount];
+        if (account.accessToken) {
+            [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", account.accessToken] forHTTPHeaderField:@"Authorization"];
+        }
+        [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            if (responseObject) {
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    success(responseObject);
+                }];
+            }else{
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    failure(nil);
+                }];
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            failure(error);
+        }];
+    }];
+}
+
+- (OTRAccount *)getDefaultAccount {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:@"zom_DefaultAccount"] != nil) {
+        NSString *accountUniqueId = [defaults objectForKey:@"zom_DefaultAccount"];
+        
+        __block OTRAccount *account = nil;
+        [[OTRDatabaseManager sharedInstance].readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+            account = [OTRAccount fetchObjectWithUniqueID:accountUniqueId transaction:transaction];
+        }];
+        if (account != nil) {
+            return account;
+        }
+    }
+    NSArray *accounts = [OTRAccountsManager allAccountsAbleToAddBuddies];
+    if (accounts != nil && accounts.count > 0)
+    {
+        return (OTRAccount *)accounts[0];
+    }
+    return nil;
 }
 
 - (void)updateComposeButton:(NSUInteger)numberOfaccounts
@@ -321,7 +393,7 @@ static CGFloat kOTRConversationCellHeight = 62.0;
                 // hack to show buddy in conversations view
                 buddy.lastMessageId = @"";
             }
-            buddy.displayName = request.jid;
+            buddy.displayName = request.displayName;
             [buddy saveWithTransaction:transaction];
         }];
         [manager.xmppRoster acceptPresenceSubscriptionRequestFrom:jid andAddToRoster:YES];

@@ -7,7 +7,6 @@
 //
 
 #import "OTRBuddyApprovalCell.h"
-#import <AFNetworking/AFNetworking.h>
 #import "OTRAccount.h"
 #import "OTRDatabaseManager.h"
 #import "OTRAccountsManager.h"
@@ -34,24 +33,13 @@
 {
     [super setThread:thread];
     __block NSString * name = [thread threadName];
-    self.nameLabel.text = name;
-    NSUserDefaults *def = [NSUserDefaults standardUserDefaults];
-    self.identifierLabel.text = [NSString stringWithFormat:@"%@ %@", name, WANTS_TO_CHAT_STRING()];
-    if ([def valueForKey:[NSString stringWithFormat:@"user_name_%@",name]]) {
-        name = [def valueForKey:[NSString stringWithFormat:@"user_name_%@",name]];
+    if ([name isEqualToString:@"Unkown buddy"]) {
+        self.nameLabel.text = @"Loading...";
+        self.identifierLabel.text = [NSString stringWithFormat:@"Unknown buddy %@", WANTS_TO_CHAT_STRING()];
+    } else {
         self.nameLabel.text = name;
         self.identifierLabel.text = [NSString stringWithFormat:@"%@ %@", name, WANTS_TO_CHAT_STRING()];
-    }else{
-        [self getmyUserDataFromVROServer:name success:^(id responseObject) {
-            [def setObject:[responseObject valueForKeyPath:@"data.full_name"] forKey:[NSString stringWithFormat:@"user_name_%@",name]];
-            [def synchronize];
-            name = [def valueForKey:[NSString stringWithFormat:@"user_details_%@",name]];
-            self.nameLabel.text = name;
-            self.identifierLabel.text = [NSString stringWithFormat:@"%@ %@", name, WANTS_TO_CHAT_STRING()];        } failure:^(NSError *error) {
-                
-        }];
     }
-    
     
 }
 
@@ -81,59 +69,8 @@
         self.actionBlock(self, NO);
     }
 }
--(void)getmyUserDataFromVROServer:(NSString *)userId success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure{
-    //    if (!userId) {
-    //        failure(nil);
-    //    }
-    NSOperationQueue *apiOperationQueue = [[NSOperationQueue alloc]init];
-    apiOperationQueue.maxConcurrentOperationCount = 2;
-    [apiOperationQueue addOperationWithBlock:^{
-               NSString *urlString  ;
-            urlString = [NSString stringWithFormat:@"users/%@",userId];
-        AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://vrocloud.com/vro_v3/v1/"]];
-        manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-        [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-        [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        OTRAccount *account = [self getDefaultAccount];
-        if (account.accessToken) {
-            [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", account.accessToken] forHTTPHeaderField:@"Authorization"];
-        }
-        [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            if (responseObject) {
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    success(responseObject);
-                }];
-            }else{
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    failure(nil);
-                }];
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            failure(error);
-        }];
-    }];
-}
-- (OTRAccount *)getDefaultAccount {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    if ([defaults objectForKey:@"zom_DefaultAccount"] != nil) {
-        NSString *accountUniqueId = [defaults objectForKey:@"zom_DefaultAccount"];
-        
-        __block OTRAccount *account = nil;
-        [[OTRDatabaseManager sharedInstance].readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
-            account = [OTRAccount fetchObjectWithUniqueID:accountUniqueId transaction:transaction];
-        }];
-        if (account != nil) {
-            return account;
-        }
-    }
-    NSArray *accounts = [OTRAccountsManager allAccountsAbleToAddBuddies];
-    if (accounts != nil && accounts.count > 0)
-    {
-        return (OTRAccount *)accounts[0];
-    }
-    return nil;
-}
+
+
 
 
 @end

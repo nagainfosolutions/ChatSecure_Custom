@@ -744,7 +744,12 @@ NSString *const OTRXMPPLoginErrorKey = @"OTRXMPPLoginErrorKey";
                 NSString *collection = [self.account.class collection];
                 NSString *key = self.account.uniqueId;
                 OTRXMPPAccount *account = [[transaction objectForKey:key inCollection:collection] copy];
-                account.displayName = vCardTemp.nickname;
+                NSString *userId = [[account.username componentsSeparatedByString:@"@"] firstObject];
+                if (userId && [userId isEqualToString:vCardTemp.nickname] && account.fullName) {
+                    account.displayName = account.fullName;
+                } else {
+                    account.displayName = vCardTemp.nickname;
+                }
                 [transaction setObject:account forKey:key inCollection:collection];
             }];
         }

@@ -133,7 +133,10 @@ static VROCache *sharedInstance;
 
 @end
 
-@implementation OTRMessagesViewController
+@implementation OTRMessagesViewController {
+    OTRBuddy *imageBuddy;
+    OTRAccount *imageAccount;
+}
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -274,6 +277,13 @@ static VROCache *sharedInstance;
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+        imageAccount = [self accountWithTransaction:transaction];
+    }];
+    [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+        imageBuddy = [self buddyWithTransaction:transaction];
+    }];
+    
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     self.isViewAppear = YES;
     __weak typeof(self)weakSelf = self;
@@ -1494,12 +1504,15 @@ static VROCache *sharedInstance;
     if ([message isKindOfClass:[PushMessage class]]) {
         return nil;
     }
+    
+    UIImage *avatarImage = nil;
+
     VROCache *cache = [VROCache sharedInstance];
-    JSQMessagesAvatarImage *image = [cache getImage:[message threadId]];
+    JSQMessagesAvatarImage *image = [cache getImage:[message messageIncoming] ?  imageBuddy ? [imageBuddy username] : @"" : imageAccount ? [imageAccount username] : @""];
     if (image) {
         return image;
     }
-    UIImage *avatarImage = nil;
+    
     if ([message messageError] || ![self isMessageTrusted:message]) {
         JSQMessagesAvatarImage *warnImage = [cache getImage:@"warnImage"];
         if (warnImage) {
@@ -1512,24 +1525,25 @@ static VROCache *sharedInstance;
             return warnImage;
         }
     } else if ([message messageIncoming]) {
-        __block OTRBuddy *buddy = nil;
-        [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
-            buddy = [self buddyWithTransaction:transaction];
-        }];
-        avatarImage = [buddy avatarImage];
+        if (imageBuddy) {
+            avatarImage = [imageBuddy avatarImage];
+            if (avatarImage) {
+                NSUInteger diameter = MIN(avatarImage.size.width, avatarImage.size.height);
+                image = [JSQMessagesAvatarImageFactory avatarImageWithImage:avatarImage diameter:diameter];
+                [cache cacheImage:image forKey:[imageBuddy username]];
+                return image;
+            }
+        }
     } else {
-        __block OTRAccount *account = nil;
-        [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
-            account = [self accountWithTransaction:transaction];
-        }];
-        avatarImage = [account avatarImage];
-    }
-    
-    if (avatarImage) {
-        NSUInteger diameter = MIN(avatarImage.size.width, avatarImage.size.height);
-        image = [JSQMessagesAvatarImageFactory avatarImageWithImage:avatarImage diameter:diameter];
-        [cache cacheImage:image forKey:[message threadId]];
-        return image;
+        if (imageAccount) {
+            avatarImage = [imageAccount avatarImage];
+            if (avatarImage) {
+                NSUInteger diameter = MIN(avatarImage.size.width, avatarImage.size.height);
+                image = [JSQMessagesAvatarImageFactory avatarImageWithImage:avatarImage diameter:diameter];
+                [cache cacheImage:image forKey:[imageAccount username]];
+                return image;
+            }
+        }
     }
     return nil;
 }

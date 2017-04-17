@@ -323,12 +323,15 @@ NSString *const OTRMessageStateKey = @"OTREncryptionManagerMessageStateKey";
             OTRXMPPManager *protocol = (OTRXMPPManager*) [[OTRProtocolManager sharedInstance] protocolForAccount:account];
             [protocol sendDeliveryReceiptForMessage:originalMessage];
         } completionBlock:^{
-            OTRAppDelegate *appDelegate = (OTRAppDelegate *)[[UIApplication sharedApplication] delegate];
-            if (appDelegate.messagesViewController.isViewAppear) {
-                if (originalMessage.buddyUniqueId != appDelegate.messagesViewController.threadKey) {
-                    [[UIApplication sharedApplication] showLocalNotification:originalMessage];
-                }
-            } else {
+//            OTRAppDelegate *appDelegate = (OTRAppDelegate *)[[UIApplication sharedApplication] delegate];
+//            if (appDelegate.messagesViewController.isViewAppear) {
+//                if (originalMessage.buddyUniqueId != appDelegate.messagesViewController.threadKey) {
+//                    [[UIApplication sharedApplication] showLocalNotification:originalMessage];
+//                }
+//            } else {
+//                [[UIApplication sharedApplication] showLocalNotification:originalMessage];
+//            }
+            if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
                 [[UIApplication sharedApplication] showLocalNotification:originalMessage];
             }
         }];
