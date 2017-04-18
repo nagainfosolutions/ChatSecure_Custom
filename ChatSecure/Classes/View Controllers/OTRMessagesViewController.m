@@ -1508,9 +1508,6 @@ static VROCache *sharedInstance;
 
     VROCache *cache = [VROCache sharedInstance];
     JSQMessagesAvatarImage *image = [cache getImage:[message messageIncoming] ?  imageBuddy ? [imageBuddy username] : @"" : imageAccount ? [imageAccount username] : @""];
-    if (image) {
-        return image;
-    }
     
     UIImage *avatarImage = nil;
     if ([message messageError] || ![self isMessageTrusted:message]) {
@@ -1524,6 +1521,8 @@ static VROCache *sharedInstance;
             [cache cacheImage:warnImage forKey:@"warnImage"];
             return warnImage;
         }
+    } else if (image) {
+        return image;
     } else if ([message messageIncoming]) {
         if (imageBuddy) {
             avatarImage = [imageBuddy avatarImage];
