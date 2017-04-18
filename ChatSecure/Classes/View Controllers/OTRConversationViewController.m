@@ -254,10 +254,7 @@ static CGFloat kOTRConversationCellHeight = 62.0;
 }
 
 -(void)getmyUserDataFromVROServer:(NSString *)userId success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure{
-    //    if (!userId) {
-    //        failure(nil);
-    //    }
-    NSOperationQueue *apiOperationQueue = [[NSOperationQueue alloc]init];
+     NSOperationQueue *apiOperationQueue = [[NSOperationQueue alloc]init];
     apiOperationQueue.maxConcurrentOperationCount = 2;
     [apiOperationQueue addOperationWithBlock:^{
         NSString *urlString  ;

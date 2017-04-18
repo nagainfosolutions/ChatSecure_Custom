@@ -168,10 +168,6 @@ static VROCache *sharedInstance;
     self.outgoingBubbleImage = [bubbleImageFactory outgoingMessagesBubbleImageWithColor:greenColor];
     self.incomingBubbleImage = [bubbleImageFactory incomingMessagesBubbleImageWithColor:[UIColor lightGrayColor]];
     
-    VROCache *cache = [VROCache sharedInstance];
-    [cache removeAllImages];
-    
-    
     ////// TitleView //////
     OTRTitleSubtitleView *titleView = [self titleView];
     [self refreshTitleView:titleView];
@@ -277,6 +273,10 @@ static VROCache *sharedInstance;
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
+    VROCache *cache = [VROCache sharedInstance];
+    [cache removeAllImages];
+    
     [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
         imageAccount = [self accountWithTransaction:transaction];
     }];
@@ -1505,7 +1505,6 @@ static VROCache *sharedInstance;
         return nil;
     }
     
-    UIImage *avatarImage = nil;
 
     VROCache *cache = [VROCache sharedInstance];
     JSQMessagesAvatarImage *image = [cache getImage:[message messageIncoming] ?  imageBuddy ? [imageBuddy username] : @"" : imageAccount ? [imageAccount username] : @""];
@@ -1513,6 +1512,7 @@ static VROCache *sharedInstance;
         return image;
     }
     
+    UIImage *avatarImage = nil;
     if ([message messageError] || ![self isMessageTrusted:message]) {
         JSQMessagesAvatarImage *warnImage = [cache getImage:@"warnImage"];
         if (warnImage) {
