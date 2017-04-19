@@ -28,6 +28,8 @@
 /** This dictionary is a temporary holding for setting a room subject. Once the room is created teh subject is set from this dictionary. */
 @property (nonatomic, strong) NSMutableDictionary *tempRoomSubject;
 
+@property (nonatomic, strong) NSString *roomOwner;
+
 
 @end
 
@@ -133,8 +135,9 @@
     [room leaveRoom];
 }
 
-- (NSString *)startGroupChatWithBuddies:(NSArray<NSString *> *)buddiesArray roomJID:(XMPPJID *)roomName nickname:(nonnull NSString *)name subject:(nullable NSString *)subject
+- (NSString *)startGroupChatWithBuddies:(NSArray<NSString *> *)buddiesArray roomJID:(XMPPJID *)roomName nickname:(nonnull NSString *)name subject:(nullable NSString *)subject ownerId:(NSString *)ownerId
 {
+    self.roomOwner = ownerId;
     dispatch_async(moduleQueue, ^{
         if ([buddiesArray count]) {
             [self.inviteDictionary setObject:buddiesArray forKey:roomName.bare];
@@ -149,8 +152,58 @@
 - (void)inviteUser:(NSString *)user toRoom:(NSString *)roomJID withMessage:(NSString *)message
 {
     XMPPRoom *room = [self.rooms objectForKey:roomJID];
-    [room inviteUser:[XMPPJID jidWithString:user] withMessage:message];
+    [self inviteUser:[XMPPJID jidWithString:user] withMessage:message room:room];
 }
+
+
+
+- (void)inviteUser:(XMPPJID *)jid withMessage:(NSString *)inviteMessageStr room:(XMPPRoom *)room
+{
+    dispatch_block_t block = ^{ @autoreleasepool {
+        
+        
+        // <message to='darkcave@chat.shakespeare.lit'>
+        //   <x xmlns='http://jabber.org/protocol/muc#user'>
+        //     <invite to='hecate@shakespeare.lit'>
+        //       <reason>
+        //         Hey Hecate, this is the place for all good witches!
+        //       </reason>
+        //     </invite>
+        //   </x>
+        // </message>
+        
+        NSXMLElement *invite = [NSXMLElement elementWithName:@"invite"];
+        [invite addAttributeWithName:@"from" stringValue:[NSString stringWithFormat:@"%@/phone", self.roomOwner]];
+        [invite addAttributeWithName:@"to" stringValue:[jid full]];
+
+        if ([inviteMessageStr length] > 0)
+        {
+            [invite addChild:[NSXMLElement elementWithName:@"reason" stringValue:inviteMessageStr]];
+        }
+        
+        NSXMLElement *x = [NSXMLElement elementWithName:@"x" xmlns:XMPPMUCUserNamespace];
+        [x addChild:invite];
+        
+        NSXMLElement *x1 = [NSXMLElement elementWithName:@"x" xmlns:@"jabber:x:conference"];
+        [x1 addAttributeWithName:@"jid" stringValue:[room.roomJID full]];
+
+        XMPPMessage *message = [XMPPMessage message];
+        //[message addAttributeWithName:@"to" stringValue:[room.roomJID full]];
+        [message addAttributeWithName:@"type" stringValue:@"normal"];
+
+        [message addChild:x];
+        [message addChild:x1];
+        [message addBody:[NSString stringWithFormat:@"%@/phone invites you to the room %@", self.roomOwner, [room.roomJID full]]];
+        [room.xmppStream sendElement:message];
+        
+    }};
+    
+    if (dispatch_get_specific(moduleQueueTag))
+        block();
+    else
+        dispatch_async(moduleQueue, block);
+}
+
 
 - (NSMutableDictionary *)rooms {
     if (!_rooms) {
@@ -349,10 +402,7 @@
         if ([arary count]) {
             [self.databaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
                 [arary enumerateObjectsUsingBlock:^(NSString *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    OTRBuddy *buddy = [OTRBuddy fetchObjectWithUniqueID:obj transaction:transaction];
-                    if (buddy) {
-                        [self inviteUser:buddy.username toRoom:sender.roomJID.bare withMessage:nil];
-                    }
+                    [self inviteUser:obj toRoom:sender.roomJID.bare withMessage:@"Group invitation!"];
                 }];
             }];
         }
