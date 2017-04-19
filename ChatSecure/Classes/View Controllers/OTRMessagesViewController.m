@@ -262,6 +262,7 @@ static VROCache *sharedInstance;
     formatter.dateTextAttributes = [attribues mutableCopy];
     formatter.timeTextAttributes = [attribues mutableCopy];
     
+    [self addGesture];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -345,6 +346,23 @@ static VROCache *sharedInstance;
     [[NSNotificationCenter defaultCenter] removeObserver:self.didFinishGeneratingPrivateKeyNotificationObject];
     
     [self.inputToolbar.contentView.textView resignFirstResponder];
+}
+
+#pragma - mark addGesture
+
+- (void)addGesture {
+    
+    UITapGestureRecognizer *singleFingerTap = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                            action:@selector(handleSingleTap:)];
+    [self.view addGestureRecognizer:singleFingerTap];
+}
+
+#pragma - mark handleSingleTap
+
+- (void)handleSingleTap:(UITapGestureRecognizer *)recognizer
+{
+    //CGPoint location = [recognizer locationInView:[recognizer.view superview]];
+    [self.view endEditing:YES];
 }
 
 #pragma - mark Setters & getters
