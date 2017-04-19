@@ -13,6 +13,7 @@
 #import "OTRBuddy.h"
 @import YapDatabase;
 #import "OTRLog.h"
+#import <AFNetworking/AFNetworking.h>
 
 @interface OTRXMPPRoomManager () <XMPPMUCDelegate, XMPPRoomDelegate, XMPPStreamDelegate, OTRYapViewHandlerDelegateProtocol>
 
@@ -27,8 +28,6 @@
 
 /** This dictionary is a temporary holding for setting a room subject. Once the room is created teh subject is set from this dictionary. */
 @property (nonatomic, strong) NSMutableDictionary *tempRoomSubject;
-
-@property (nonatomic, strong) NSString *roomOwner;
 
 
 @end
@@ -135,9 +134,8 @@
     [room leaveRoom];
 }
 
-- (NSString *)startGroupChatWithBuddies:(NSArray<NSString *> *)buddiesArray roomJID:(XMPPJID *)roomName nickname:(nonnull NSString *)name subject:(nullable NSString *)subject ownerId:(NSString *)ownerId
+- (NSString *)startGroupChatWithBuddies:(NSArray<NSString *> *)buddiesArray roomJID:(XMPPJID *)roomName nickname:(nonnull NSString *)name subject:(nullable NSString *)subject
 {
-    self.roomOwner = ownerId;
     dispatch_async(moduleQueue, ^{
         if ([buddiesArray count]) {
             [self.inviteDictionary setObject:buddiesArray forKey:roomName.bare];
@@ -152,58 +150,8 @@
 - (void)inviteUser:(NSString *)user toRoom:(NSString *)roomJID withMessage:(NSString *)message
 {
     XMPPRoom *room = [self.rooms objectForKey:roomJID];
-    [self inviteUser:[XMPPJID jidWithString:user] withMessage:message room:room];
+    [room inviteUser:[XMPPJID jidWithString:user] withMessage:message];
 }
-
-
-
-- (void)inviteUser:(XMPPJID *)jid withMessage:(NSString *)inviteMessageStr room:(XMPPRoom *)room
-{
-    dispatch_block_t block = ^{ @autoreleasepool {
-        
-        
-        // <message to='darkcave@chat.shakespeare.lit'>
-        //   <x xmlns='http://jabber.org/protocol/muc#user'>
-        //     <invite to='hecate@shakespeare.lit'>
-        //       <reason>
-        //         Hey Hecate, this is the place for all good witches!
-        //       </reason>
-        //     </invite>
-        //   </x>
-        // </message>
-        
-        NSXMLElement *invite = [NSXMLElement elementWithName:@"invite"];
-        [invite addAttributeWithName:@"from" stringValue:[NSString stringWithFormat:@"%@/phone", self.roomOwner]];
-        [invite addAttributeWithName:@"to" stringValue:[jid full]];
-
-        if ([inviteMessageStr length] > 0)
-        {
-            [invite addChild:[NSXMLElement elementWithName:@"reason" stringValue:inviteMessageStr]];
-        }
-        
-        NSXMLElement *x = [NSXMLElement elementWithName:@"x" xmlns:XMPPMUCUserNamespace];
-        [x addChild:invite];
-        
-        NSXMLElement *x1 = [NSXMLElement elementWithName:@"x" xmlns:@"jabber:x:conference"];
-        [x1 addAttributeWithName:@"jid" stringValue:[room.roomJID full]];
-
-        XMPPMessage *message = [XMPPMessage message];
-        //[message addAttributeWithName:@"to" stringValue:[room.roomJID full]];
-        [message addAttributeWithName:@"type" stringValue:@"normal"];
-
-        [message addChild:x];
-        [message addChild:x1];
-        [message addBody:[NSString stringWithFormat:@"%@/phone invites you to the room %@", self.roomOwner, [room.roomJID full]]];
-        [room.xmppStream sendElement:message];
-        
-    }};
-    
-    if (dispatch_get_specific(moduleQueueTag))
-        block();
-    else
-        dispatch_async(moduleQueue, block);
-}
-
 
 - (NSMutableDictionary *)rooms {
     if (!_rooms) {
@@ -384,6 +332,10 @@
 
 #pragma - mark XMPPRoomDelegate Methods
 
+-(void)xmppRoomDidCreate:(XMPPRoom *)sender {
+    
+}
+
 - (void)xmppRoomDidJoin:(XMPPRoom *)sender
 {
     [sender configureRoomUsingOptions:[[self class] defaultRoomConfiguration]];
@@ -402,11 +354,34 @@
         if ([arary count]) {
             [self.databaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
                 [arary enumerateObjectsUsingBlock:^(NSString *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    [self inviteUser:obj toRoom:sender.roomJID.bare withMessage:@"Group invitation!"];
+                    
+//                    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//                    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+//                    [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+//                    [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+//                    
+//                    NSDictionary *params = @{@"key":@"secret",@"command":@"send_direct_invitation", @"args": @[sender.roomJID.user, sender.roomJID.domain, @"", @"Added to group!", obj]};
+//                    NSURL *baseURL = [NSURL URLWithString:@"http://ec2-54-169-209-47.ap-southeast-1.compute.amazonaws.com:5285"];
+//                    NSString *absoluteString = [[NSURL URLWithString:@"api/admin" relativeToURL:baseURL] absoluteString];
+//                    [manager POST:absoluteString parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
+//                        
+//                    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//                        
+//                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//                        
+//                    }];
+                    
+                    OTRBuddy *buddy = [OTRBuddy fetchObjectWithUniqueID:obj transaction:transaction];
+                    if (buddy) {
+                        [self inviteUser:buddy.username toRoom:sender.roomJID.bare withMessage:nil];
+                    }
                 }];
             }];
         }
+        
     });
+    
+    
     
 }
 
