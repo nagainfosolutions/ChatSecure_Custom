@@ -137,7 +137,9 @@
         [databaseMessage saveWithTransaction:transaction];
     } completionBlock:^{
         if(databaseMessage) {
-            [[UIApplication sharedApplication] showLocalNotification:databaseMessage];
+            if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
+                [[UIApplication sharedApplication] showLocalNotification:databaseMessage];
+            }
         }
     }];
 }
