@@ -430,8 +430,10 @@ NSString *const OTRMessageStateKey = @"OTREncryptionManagerMessageStateKey";
             }
             
             // Inject message to recipient indicating error
-            NSString *errorString = [NSString stringWithFormat:@"OTR Error: %@", [OTREncryptionManager errorForMessageEvent:event string:nil].localizedDescription];
-            [self otrKit:self.otrKit injectMessage:errorString username:username accountName:accountName protocol:protocol fingerprint:nil tag:tag];
+            
+           /* NSString *errorString = [NSString stringWithFormat:@"OTR Error: %@", [OTREncryptionManager errorForMessageEvent:event string:nil].localizedDescription];
+            [self otrKit:self.otrKit injectMessage:errorString username:username accountName:accountName protocol:protocol fingerprint:nil tag:tag];*/
+            
             // automatically renegotiate a new session when there's an error
             [self.otrKit initiateEncryptionWithUsername:username accountName:accountName protocol:protocol];
         }
