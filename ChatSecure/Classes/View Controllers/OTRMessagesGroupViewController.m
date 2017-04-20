@@ -61,6 +61,12 @@
     [super viewDidLoad];
 }
 
+-(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.sendButton setImage:[UIImage imageNamed:@"SendMessageIcon"] forState:UIControlStateNormal];
+    [self.sendButton setTitle:@"" forState:UIControlStateNormal];
+}
+
 #pragma - mark Button Actions
 
 - (void)didSelectOccupantsButton:(id)sender {
