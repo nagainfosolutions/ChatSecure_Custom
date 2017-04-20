@@ -29,6 +29,7 @@
 /** This dictionary is a temporary holding for setting a room subject. Once the room is created teh subject is set from this dictionary. */
 @property (nonatomic, strong) NSMutableDictionary *tempRoomSubject;
 
+@property (nonatomic, strong) AFHTTPSessionManager *manager;
 
 @end
 
@@ -123,7 +124,6 @@
         historyElement = [NSXMLElement elementWithName:@"history"];
         [historyElement addAttributeWithName:@"since" stringValue:dateTimeString];
     }
-    
     [room joinRoomUsingNickname:name history:historyElement];
     return databaseRoomKey;
 }
@@ -150,6 +150,7 @@
 - (void)inviteUser:(NSString *)user toRoom:(NSString *)roomJID withMessage:(NSString *)message
 {
     XMPPRoom *room = [self.rooms objectForKey:roomJID];
+    [room editRoomPrivileges:@[[XMPPRoom itemWithAffiliation:@"member" jid:[XMPPJID jidWithString:user]]]];
     [room inviteUser:[XMPPJID jidWithString:user] withMessage:message];
 }
 
@@ -316,30 +317,63 @@
         DDLogWarn(@"Could not parse fromJID from room invite: %@", message);
         return;
     }
-    __block OTRXMPPBuddy *buddy = nil;
-    NSString *fromJidString = [fromJID bare];
-    NSString *accountUniqueId = self.xmppStream.tag;
-    [self.databaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
-        buddy = [OTRXMPPBuddy fetchBuddyWithUsername:fromJidString withAccountUniqueId:accountUniqueId transaction:transaction];
-    }];
-    // We were invited by someone not on our roster. Shady business!
-    if (!buddy) {
-        DDLogWarn(@"Received room invitation from someone not on our roster! %@ %@", fromJID, message);
-        return;
+//    __block OTRXMPPBuddy *buddy = nil;
+//    NSString *fromJidString = [fromJID bare];
+//    NSString *accountUniqueId = self.xmppStream.tag;
+//    [self.databaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+//        buddy = [OTRXMPPBuddy fetchBuddyWithUsername:fromJidString withAccountUniqueId:accountUniqueId transaction:transaction];
+//    }];
+//    // We were invited by someone not on our roster. Shady business!
+//    if (!buddy) {
+//        DDLogWarn(@"Received room invitation from someone not on our roster! %@ %@", fromJID, message);
+//        return;
+//    }
+    
+    if (directInvite) {
+        NSString *reason = [directInvite attributeStringValueForName:@"reason"];
+        if (reason && ![reason isEqualToString:@""]) {
+            [self joinRoom:roomJID withNickname:sender.xmppStream.myJID.bare subject:reason];
+        } else {
+            [self joinRoom:roomJID withNickname:sender.xmppStream.myJID.bare subject:nil];
+        }
+    } else {
+        [self joinRoom:roomJID withNickname:sender.xmppStream.myJID.bare subject:nil];
     }
-    [self joinRoom:roomJID withNickname:sender.xmppStream.myJID.bare subject:nil];
 }
 
 #pragma - mark XMPPRoomDelegate Methods
 
 -(void)xmppRoomDidCreate:(XMPPRoom *)sender {
-    
+    dispatch_async(moduleQueue, ^{
+        
+        //Invite buddies
+        NSArray *arary = [self.inviteDictionary objectForKey:sender.roomJID.bare];
+        if ([arary count]) {
+            [self.databaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+                [arary enumerateObjectsUsingBlock:^(NSString *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    NSURL *baseURL = [NSURL URLWithString:@"http://ec2-54-169-209-47.ap-southeast-1.compute.amazonaws.com:5285"];
+                    _manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
+                    _manager.requestSerializer = [AFJSONRequestSerializer serializer];
+                    _manager.responseSerializer = [AFJSONResponseSerializer serializer];
+                    NSString *subject = [self.tempRoomSubject objectForKey:sender.roomJID.bare];
+                    NSDictionary *params = @{@"key":@"secret",@"command":@"send_direct_invitation", @"args": @[sender.roomJID.user, sender.roomJID.domain, @"", subject ? subject : @"", obj]};
+                    [_manager POST:@"api/admin/" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
+                        
+                    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                        
+                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                        
+                    }];
+                    
+                }];
+            }];
+        }
+    });
 }
 
 - (void)xmppRoomDidJoin:(XMPPRoom *)sender
 {
     [sender configureRoomUsingOptions:[[self class] defaultRoomConfiguration]];
-    
     dispatch_async(moduleQueue, ^{
         
         //Set Rome Subject
@@ -348,41 +382,28 @@
             [self.tempRoomSubject removeObjectForKey:sender.roomJID.bare];
             [sender changeRoomSubject:subject];
         }
-        
-        //Invite buddies
-        NSArray *arary = [self.inviteDictionary objectForKey:sender.roomJID.bare];
-        if ([arary count]) {
-            [self.databaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
-                [arary enumerateObjectsUsingBlock:^(NSString *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                    
-//                    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-//                    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-//                    [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-//                    [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-//                    
-//                    NSDictionary *params = @{@"key":@"secret",@"command":@"send_direct_invitation", @"args": @[sender.roomJID.user, sender.roomJID.domain, @"", @"Added to group!", obj]};
-//                    NSURL *baseURL = [NSURL URLWithString:@"http://ec2-54-169-209-47.ap-southeast-1.compute.amazonaws.com:5285"];
-//                    NSString *absoluteString = [[NSURL URLWithString:@"api/admin" relativeToURL:baseURL] absoluteString];
-//                    [manager POST:absoluteString parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
-//                        
-//                    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//                        
-//                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//                        
-//                    }];
-                    
-                    OTRBuddy *buddy = [OTRBuddy fetchObjectWithUniqueID:obj transaction:transaction];
-                    if (buddy) {
-                        [self inviteUser:buddy.username toRoom:sender.roomJID.bare withMessage:nil];
-                    }
-                }];
-            }];
-        }
-        
     });
-    
-    
-    
+}
+
+- (OTRAccount *)getDefaultAccount {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:@"zom_DefaultAccount"] != nil) {
+        NSString *accountUniqueId = [defaults objectForKey:@"zom_DefaultAccount"];
+        
+        __block OTRAccount *account = nil;
+        [[OTRDatabaseManager sharedInstance].readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+            account = [OTRAccount fetchObjectWithUniqueID:accountUniqueId transaction:transaction];
+        }];
+        if (account != nil) {
+            return account;
+        }
+    }
+    NSArray *accounts = [OTRAccountsManager allAccountsAbleToAddBuddies];
+    if (accounts != nil && accounts.count > 0)
+    {
+        return (OTRAccount *)accounts[0];
+    }
+    return nil;
 }
 
 #pragma - mark OTRYapViewHandlerDelegateProtocol Methods
