@@ -49,6 +49,8 @@
 
 + (instancetype)appDelegate;
 
+- (OTRAccount *)getDefaultAccount;
+
 - (UIViewController *)visibleViewController;
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler;
 - (void) userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler;

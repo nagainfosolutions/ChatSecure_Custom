@@ -60,6 +60,7 @@ extern NSString *const OTRXMPPTorImageName;
 @property (nonatomic, strong) NSString *mediaPath;
 @property (nonatomic, strong) NSString *accessToken;
 @property (nonatomic, strong) NSString *fullName;
+@property (nonatomic, strong) NSArray *allFriends;
 
 
 /** 
