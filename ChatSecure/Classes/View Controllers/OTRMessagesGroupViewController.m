@@ -45,8 +45,14 @@
 }
 
 - (OTRAccount *)accountWithTransaction:(YapDatabaseReadTransaction *)transaction {
-    OTRAccount *account = [OTRAccount fetchObjectWithUniqueID:self.accountUniqueId transaction:transaction];
-    return account;
+    OTRAccount *account = [super accountWithTransaction:transaction];
+    if (account) {
+        return account;
+    } else {
+        account = [OTRAccount fetchObjectWithUniqueID:self.accountUniqueId transaction:transaction];
+        return account;
+    }
+    
 }
 
 // Override superclass
@@ -63,8 +69,8 @@
 
 -(void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self.sendButton setImage:[UIImage imageNamed:@"SendMessageIcon"] forState:UIControlStateNormal];
-    [self.sendButton setTitle:@"" forState:UIControlStateNormal];
+    [self.inputToolbar.contentView.rightBarButtonItem setImage:[UIImage imageNamed:@"SendMessageIcon"] forState:UIControlStateNormal];
+    [self.inputToolbar.contentView.rightBarButtonItem setTitle:@"" forState:UIControlStateNormal];
 }
 
 #pragma - mark Button Actions

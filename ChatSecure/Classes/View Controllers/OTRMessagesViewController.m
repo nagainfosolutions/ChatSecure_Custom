@@ -49,6 +49,7 @@
 #import <ChatSecureCore/ChatSecureCore-Swift.h>
 #import "OTRYapMessageSendAction.h"
 #import "UIViewController+ChatSecure.h"
+
 @import YapDatabase;
 @import PureLayout;
 @import KVOController;
@@ -251,8 +252,7 @@ static VROCache *sharedInstance;
     self.inputToolbar.contentView.textView.layer.cornerRadius = self.inputToolbar.contentView.textView.frame.size.height/2;
     self.inputToolbar.contentView.textView.font = [UIFont fontWithName:@"Calibri" size:self.inputToolbar.contentView.textView.font.pointSize];
     
-    [self.sendButton setImage:[UIImage imageNamed:@"SendMessageIcon"] forState:UIControlStateNormal];
-    [self.sendButton setTitle:@"" forState:UIControlStateNormal];
+   
     
     JSQMessagesTimestampFormatter *formatter = [JSQMessagesTimestampFormatter sharedFormatter];
     
@@ -284,6 +284,9 @@ static VROCache *sharedInstance;
     [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
         imageBuddy = [self buddyWithTransaction:transaction];
     }];
+    
+    [self.sendButton setImage:[UIImage imageNamed:@"SendMessageIcon"] forState:UIControlStateNormal];
+    [self.sendButton setTitle:@"" forState:UIControlStateNormal];
     
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     self.isViewAppear = YES;
@@ -340,7 +343,9 @@ static VROCache *sharedInstance;
     [super viewWillDisappear:animated];
     self.isViewAppear = NO;
 
-    [self saveCurrentMessageText:self.inputToolbar.contentView.textView.text threadKey:self.threadKey colleciton:self.threadCollection];
+    if (self.threadKey && self.threadCollection) {
+        [self saveCurrentMessageText:self.inputToolbar.contentView.textView.text threadKey:self.threadKey colleciton:self.threadCollection];
+    }
     
     [[NSNotificationCenter defaultCenter] removeObserver:self.messageStateDidChangeNotificationObject];
     [[NSNotificationCenter defaultCenter] removeObserver:self.didFinishGeneratingPrivateKeyNotificationObject];
@@ -468,10 +473,19 @@ static VROCache *sharedInstance;
             account = [OTRAccount fetchObjectWithUniqueID:buddy.accountUniqueId transaction:transaction];
         }];
         
+        NSLog(@"account :::::::::: %@",account);
+        NSLog(@"buddy :::::::::: %@",buddy);
         
+        NSLog(@"account.username :::::::::: %@",account.username);
+        NSLog(@"buddy.username :::::::::: %@",buddy.username);
         
         //Update UI now
-        if (buddy.chatState == OTRChatStateComposing || buddy.chatState == OTRChatStatePaused) {
+        if (![buddy.username isEqualToString:account.username] && (buddy.chatState == OTRChatStateComposing || buddy.chatState == OTRChatStatePaused)) {
+            
+//            if(buddy.chatState == OTRChatStateInactive) {
+//                
+//                self.showTypingIndicator = NO;
+//            }
             self.showTypingIndicator = YES;
         }
         else {
@@ -1537,6 +1551,34 @@ static VROCache *sharedInstance;
         return nil;
     }
     
+    
+    if ([message isKindOfClass:[OTRXMPPRoomMessage class]]) {
+        UIImage *avatarImage = nil;
+        if ([message messageError] || ![self isMessageTrusted:message]) {
+            avatarImage = [OTRImages circleWarningWithColor:[OTRColors warnColor]];
+        }
+        else if ([message messageIncoming]) {
+            __block OTRBuddy *buddy = nil;
+            [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+                buddy = [self buddyWithTransaction:transaction];
+            }];
+            avatarImage = [buddy avatarImage];
+        }
+        else {
+            __block OTRAccount *account = nil;
+            [self.readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+                account = [self accountWithTransaction:transaction];
+            }];
+            avatarImage = [account avatarImage];
+        }
+        
+        if (avatarImage) {
+            NSUInteger diameter = MIN(avatarImage.size.width, avatarImage.size.height);
+            return [JSQMessagesAvatarImageFactory avatarImageWithImage:avatarImage diameter:diameter];
+        }
+        return nil;
+    }
+    
 
     VROCache *cache = [VROCache sharedInstance];
     JSQMessagesAvatarImage *image = [cache getImage:[message messageIncoming] ?  imageBuddy ? [imageBuddy username] : @"" : imageAccount ? [imageAccount username] : @""];
@@ -1617,8 +1659,20 @@ static VROCache *sharedInstance;
 {
     if ([self showSenderDisplayNameAtIndexPath:indexPath]) {
         id<OTRMessageProtocol,JSQMessageData> message = [self messageAtIndexPath:indexPath];
-        NSString *displayName = [message senderDisplayName];
-        return [[NSAttributedString alloc] initWithString:displayName];
+        if ([message isKindOfClass:[OTRXMPPRoomMessage class]]) {
+            NSString *displayName = [message senderDisplayName];
+            NSString *userId = [[displayName componentsSeparatedByString:@"%@"] firstObject];
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"username CONTAINS[cd] %@", [NSString stringWithFormat:@"%@@", userId]];
+            NSArray <OTRXMPPBuddy *>*filtered = [imageAccount.allFriends filteredArrayUsingPredicate:predicate];
+            if ([filtered count]) {
+                return [[NSAttributedString alloc] initWithString:[filtered firstObject].displayName];
+            } else {
+                return [[NSAttributedString alloc] initWithString:displayName];
+            }
+        } else {
+            NSString *displayName = [message senderDisplayName];
+            return [[NSAttributedString alloc] initWithString:displayName];
+        }
     }
     
     return  nil;

@@ -14,12 +14,16 @@ public class OTRRoomOccupantsViewController: UIViewController {
     
     let tableView = UITableView(frame: CGRectZero, style: .Plain)
     var viewHandler:OTRYapViewHandler?
+    var account: OTRAccount!
     
     public init(databaseConnection:YapDatabaseConnection, roomKey:String) {
         super.init(nibName: nil, bundle: nil)
         viewHandler = OTRYapViewHandler(databaseConnection: databaseConnection)
         viewHandler?.delegate = self
         viewHandler?.setup(DatabaseExtensionName.GroupOccupantsViewName.name(), groups: [roomKey])
+        if let appDelgate = UIApplication.sharedApplication().delegate as? OTRAppDelegate {
+            account = appDelgate.getDefaultAccount()
+        }
     }
 
     required public init?(coder aDecoder: NSCoder) {
@@ -71,7 +75,24 @@ extension OTRRoomOccupantsViewController:UITableViewDataSource {
         let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
         
         if let roomOccupant = self.viewHandler?.object(indexPath) as? OTRXMPPRoomOccupant {
-            cell.textLabel?.text = roomOccupant.realJID ?? roomOccupant.jid
+            let roomUserId = (roomOccupant.realJID ?? roomOccupant.jid!).componentsSeparatedByString("@").first
+            if account.userId == roomUserId {
+                cell.textLabel?.text = "You"
+            } else {
+                if let users = account?.allFriends as? [OTRXMPPBuddy] {
+                    let user = users.filter({ (buddy) -> Bool in
+                        let buddyUserId = buddy.username.componentsSeparatedByString("@").first
+                        return buddyUserId == roomUserId
+                    })
+                    if user.count > 0 {
+                        cell.textLabel?.text = user.first!.displayName
+                    } else {
+                        cell.textLabel?.text = "Unknown buddy"
+                    }
+                } else {
+                    cell.textLabel?.text = "Unknown buddy"
+                }
+            }
         } else {
             cell.detailTextLabel?.text = ""
             cell.textLabel?.text = ""

@@ -499,6 +499,27 @@
     }
 }
 
+- (OTRAccount *)getDefaultAccount {
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults objectForKey:@"zom_DefaultAccount"] != nil) {
+        NSString *accountUniqueId = [defaults objectForKey:@"zom_DefaultAccount"];
+        
+        __block OTRAccount *account = nil;
+        [[OTRDatabaseManager sharedInstance].readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
+            account = [OTRAccount fetchObjectWithUniqueID:accountUniqueId transaction:transaction];
+        }];
+        if (account != nil) {
+            return account;
+        }
+    }
+    NSArray *accounts = [OTRAccountsManager allAccountsAbleToAddBuddies];
+    if (accounts != nil && accounts.count > 0)
+    {
+        return (OTRAccount *)accounts[0];
+    }
+    return nil;
+}
+
 - (void) enterThreadWithUserInfo:(NSDictionary*)userInfo {
     NSString *threadKey = userInfo[kOTRNotificationThreadKey];
     NSString *threadCollection = userInfo[kOTRNotificationThreadCollection];
