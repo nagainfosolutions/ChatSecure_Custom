@@ -830,7 +830,8 @@ static VROCache *sharedInstance;
             OTRBuddy *buddy = (OTRBuddy *)possibleBuddy;
             OTRAccount *account = [buddy accountWithTransaction:transaction];
             
-            OTRKit *otrKit = [OTRProtocolManager sharedInstance].encryptionManager.otrKit;
+//            ???: Commented Because of Deadlock arrives in transaction
+           /* OTRKit *otrKit = [OTRProtocolManager sharedInstance].encryptionManager.otrKit;
             NSArray <OTRFingerprint*> *fingerprints = [otrKit fingerprintsForUsername:buddy.username accountName:account.username protocol:[account protocolTypeString]];
             
             if ([fingerprints count]) {
@@ -840,7 +841,7 @@ static VROCache *sharedInstance;
                         [[OTRProtocolManager sharedInstance].encryptionManager saveFingerprint:obj];
                     }
                 }];
-            }
+            }*/
             
             
             __block OTRKitMessageState messageState = [[OTRProtocolManager sharedInstance].encryptionManager.otrKit messageStateForUsername:buddy.username accountName:account.username protocol:account.protocolTypeString];
