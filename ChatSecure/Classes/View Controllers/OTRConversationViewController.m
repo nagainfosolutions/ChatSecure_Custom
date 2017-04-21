@@ -263,7 +263,7 @@ static CGFloat kOTRConversationCellHeight = 62.0;
         manager.requestSerializer = [AFHTTPRequestSerializer serializer];
         [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
         [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        OTRAccount *account = [self getDefaultAccount];
+        OTRAccount *account = [(OTRAppDelegate *)[UIApplication sharedApplication].delegate getDefaultAccount];
         if (account.accessToken) {
             [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", account.accessToken] forHTTPHeaderField:@"Authorization"];
         }
@@ -282,27 +282,6 @@ static CGFloat kOTRConversationCellHeight = 62.0;
             failure(error);
         }];
     }];
-}
-
-- (OTRAccount *)getDefaultAccount {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    if ([defaults objectForKey:@"zom_DefaultAccount"] != nil) {
-        NSString *accountUniqueId = [defaults objectForKey:@"zom_DefaultAccount"];
-        
-        __block OTRAccount *account = nil;
-        [[OTRDatabaseManager sharedInstance].readOnlyDatabaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
-            account = [OTRAccount fetchObjectWithUniqueID:accountUniqueId transaction:transaction];
-        }];
-        if (account != nil) {
-            return account;
-        }
-    }
-    NSArray *accounts = [OTRAccountsManager allAccountsAbleToAddBuddies];
-    if (accounts != nil && accounts.count > 0)
-    {
-        return (OTRAccount *)accounts[0];
-    }
-    return nil;
 }
 
 - (void)updateComposeButton:(NSUInteger)numberOfaccounts
