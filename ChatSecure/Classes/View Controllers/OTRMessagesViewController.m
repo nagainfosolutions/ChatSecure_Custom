@@ -247,7 +247,7 @@ static VROCache *sharedInstance;
     self.collectionView.loadEarlierMessagesHeaderTextColor = greenColor;
     self.collectionView.typingIndicatorEllipsisColor = [UIColor whiteColor];
     self.collectionView.typingIndicatorMessageBubbleColor = greenColor;
-    self.collectionView.typingIndicatorDisplaysOnLeft = NO;
+    self.collectionView.typingIndicatorDisplaysOnLeft = YES;
     self.inputToolbar.contentView.textView.layer.cornerRadius = self.inputToolbar.contentView.textView.frame.size.height/2;
     self.inputToolbar.contentView.textView.font = [UIFont fontWithName:@"Calibri" size:self.inputToolbar.contentView.textView.font.pointSize];
     
@@ -468,10 +468,19 @@ static VROCache *sharedInstance;
             account = [OTRAccount fetchObjectWithUniqueID:buddy.accountUniqueId transaction:transaction];
         }];
         
+        NSLog(@"account :::::::::: %@",account);
+        NSLog(@"buddy :::::::::: %@",buddy);
         
+        NSLog(@"account.username :::::::::: %@",account.username);
+        NSLog(@"buddy.username :::::::::: %@",buddy.username);
         
         //Update UI now
-        if (buddy.chatState == OTRChatStateComposing || buddy.chatState == OTRChatStatePaused) {
+        if (![buddy.username isEqualToString:account.username] && (buddy.chatState == OTRChatStateComposing || buddy.chatState == OTRChatStatePaused)) {
+            
+//            if(buddy.chatState == OTRChatStateInactive) {
+//                
+//                self.showTypingIndicator = NO;
+//            }
             self.showTypingIndicator = YES;
         }
         else {
