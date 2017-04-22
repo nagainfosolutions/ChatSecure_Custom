@@ -152,9 +152,9 @@
     }
     else if (timeInterval < 60*60) {
         int minsInt = timeInterval/60;
-        NSString * minString = @"mins";
+        NSString * minString = @"mins ago";
         if (minsInt == 1) {
-            minString = @"min";
+            minString = @"min ago";
         }
         dateString = [NSString stringWithFormat:@"%d %@",minsInt,minString];
     }
