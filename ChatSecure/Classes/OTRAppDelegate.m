@@ -91,7 +91,7 @@
     [DDLog addLogger:fileLogger withLevel:DDLogLevelAll];
 #endif
     
-   // [self setupCrashReporting];
+    [self setupCrashReporting];
     
     _theme = [[[self themeClass] alloc] init];
     [self.theme setupGlobalTheme];
