@@ -71,6 +71,16 @@
     [super viewWillAppear:animated];
     [self.inputToolbar.contentView.rightBarButtonItem setImage:[UIImage imageNamed:@"SendMessageIcon"] forState:UIControlStateNormal];
     [self.inputToolbar.contentView.rightBarButtonItem setTitle:@"" forState:UIControlStateNormal];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadCollectionData) name:OTRXMPPUserDetailsFetchedNotification object:nil];
+}
+
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:OTRXMPPUserDetailsFetchedNotification object:nil];
+}
+
+-(void)reloadCollectionData {
+    [self.collectionView reloadData];
 }
 
 #pragma - mark Button Actions

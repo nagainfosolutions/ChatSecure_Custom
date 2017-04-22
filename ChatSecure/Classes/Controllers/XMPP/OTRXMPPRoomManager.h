@@ -22,6 +22,5 @@
 
 - (nullable NSString *)startGroupChatWithBuddies:(nullable NSArray <NSString *>*)buddiesArray roomJID:(nonnull XMPPJID *)roomName nickname:(nonnull NSString *)name subject:(nullable NSString *)subject;
 
-+(void)getmyUserDataFromVROServer:(nullable NSString *)userId success:(void (^ _Nonnull)(_Nonnull id responseObject))success failure:(void ( ^ _Nonnull )( NSError * _Nonnull error))failure;
 
 @end

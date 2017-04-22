@@ -433,35 +433,5 @@
 }
 
 
-#pragma - mark Get Buddy
-+(void)getmyUserDataFromVROServer:(NSString *)userId success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure {
-    NSOperationQueue *apiOperationQueue = [[NSOperationQueue alloc]init];
-    apiOperationQueue.maxConcurrentOperationCount = 2;
-    [apiOperationQueue addOperationWithBlock:^{
-        NSString *urlString  ;
-        urlString = [NSString stringWithFormat:@"users/%@",userId];
-        AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://vrocloud.com/vro_v3/v1/"]];
-        manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-        [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-        [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        OTRAccount *account = [(OTRAppDelegate *)[UIApplication sharedApplication].delegate getDefaultAccount];
-        if (account.accessToken) {
-            [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", account.accessToken] forHTTPHeaderField:@"Authorization"];
-        }
-        [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            if (responseObject) {
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    success(responseObject);
-                }];
-            }else{
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    failure(nil);
-                }];
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            failure(error);
-        }];
-    }];
-}
+
 @end

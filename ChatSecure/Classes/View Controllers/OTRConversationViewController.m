@@ -229,17 +229,9 @@ static CGFloat kOTRConversationCellHeight = 62.0;
         OTRXMPPBuddy *buddy = [[OTRXMPPBuddy alloc] init];
         buddy.hasIncomingSubscriptionRequest = YES;
         NSString *userId = [[request.jid componentsSeparatedByString:@"@"] firstObject];
-        if (userId) {
-            if (request.displayName == nil || [request.displayName isEqualToString:@""]) {
-                request.displayName = @"Unkown buddy";
-                [self getmyUserDataFromVROServer:userId success:^(id responseObject) {
-                    request.displayName = [responseObject valueForKeyPath:@"data.full_name"];
-                    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-                } failure:^(NSError *error) {
-                    request.displayName = @"";
-                    [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-                }];
-            }
+        NSDictionary *user = [OTRAccount fetchUserWithUsernameOrUserId:userId];
+        if (user) {
+            request.displayName = user[@"full_name"];
         } else {
             request.displayName = @"Unkown buddy";
         }
@@ -253,36 +245,6 @@ static CGFloat kOTRConversationCellHeight = 62.0;
     return thread;
 }
 
--(void)getmyUserDataFromVROServer:(NSString *)userId success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure{
-     NSOperationQueue *apiOperationQueue = [[NSOperationQueue alloc]init];
-    apiOperationQueue.maxConcurrentOperationCount = 2;
-    [apiOperationQueue addOperationWithBlock:^{
-        NSString *urlString  ;
-        urlString = [NSString stringWithFormat:@"users/%@",userId];
-        AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://vrocloud.com/vro_v3/v1/"]];
-        manager.requestSerializer = [AFHTTPRequestSerializer serializer];
-        [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-        [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-        OTRAccount *account = [(OTRAppDelegate *)[UIApplication sharedApplication].delegate getDefaultAccount];
-        if (account.accessToken) {
-            [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", account.accessToken] forHTTPHeaderField:@"Authorization"];
-        }
-        [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
-        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            if (responseObject) {
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    success(responseObject);
-                }];
-            }else{
-                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                    failure(nil);
-                }];
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            failure(error);
-        }];
-    }];
-}
 
 - (void)updateComposeButton:(NSUInteger)numberOfaccounts
 {

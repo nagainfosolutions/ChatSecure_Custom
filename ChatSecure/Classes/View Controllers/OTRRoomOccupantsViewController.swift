@@ -42,6 +42,20 @@ public class OTRRoomOccupantsViewController: UIViewController {
         self.tableView.autoPinEdgesToSuperviewEdges()
     }
     
+    public override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(reloadData), name: OTRXMPPUserDetailsFetchedNotification, object: nil)
+    }
+    
+    public override func viewWillDisappear(animated: Bool) {
+        super.viewWillDisappear(animated)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: OTRXMPPUserDetailsFetchedNotification, object: nil)
+    }
+    
+    func reloadData() {
+        self.tableView.reloadData()
+    }
+    
 }
 
 extension OTRRoomOccupantsViewController:OTRYapViewHandlerDelegateProtocol {
@@ -79,16 +93,8 @@ extension OTRRoomOccupantsViewController:UITableViewDataSource {
             if account.userId == roomUserId {
                 cell.textLabel?.text = "You"
             } else {
-                if let users = account?.allFriends as? [OTRXMPPBuddy] {
-                    let user = users.filter({ (buddy) -> Bool in
-                        let buddyUserId = buddy.username.componentsSeparatedByString("@").first
-                        return buddyUserId == roomUserId
-                    })
-                    if user.count > 0 {
-                        cell.textLabel?.text = user.first!.displayName
-                    } else {
-                        cell.textLabel?.text = "Unknown buddy"
-                    }
+                if let user = OTRAccount.fetchUserWithUsernameOrUserId(roomUserId) as? [String: AnyObject] where user["full_name"] != nil {
+                    cell.textLabel?.text = "\(user["full_name"]!)"
                 } else {
                     cell.textLabel?.text = "Unknown buddy"
                 }

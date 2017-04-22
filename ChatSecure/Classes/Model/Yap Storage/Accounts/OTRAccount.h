@@ -30,6 +30,7 @@ extern NSString *const OTRAimImageName;
 extern NSString *const OTRGoogleTalkImageName;
 extern NSString *const OTRXMPPImageName;
 extern NSString *const OTRXMPPTorImageName;
+extern NSString *const OTRXMPPUserDetailsFetchedNotification;
 
 @interface OTRAccount : OTRYapDatabaseObject <OTRUserInfoProfile>
 
@@ -60,7 +61,7 @@ extern NSString *const OTRXMPPTorImageName;
 @property (nonatomic, strong) NSString *mediaPath;
 @property (nonatomic, strong) NSString *accessToken;
 @property (nonatomic, strong) NSString *fullName;
-@property (nonatomic, strong) NSArray *allFriends;
+@property (nonatomic, strong) NSArray *userList;
 
 
 /** 
@@ -122,5 +123,14 @@ extern NSString *const OTRXMPPTorImageName;
  *  @return String representation of OTRFingerprintType
  */
 + (NSString*) fingerprintStringTypeForFingerprintType:(OTRFingerprintType)fingerprintType;
+
++(void)addUserToList:(NSDictionary *)user;
+
++(void)addUsersToList:(NSArray *)users;
+
++(NSDictionary *)fetchUserWithUsernameOrUserId:(nullable NSString *)string;
+
+-(void)getmyUserDataFromVROServer:(nullable NSString *)userId success:(void (^ _Nonnull)(_Nonnull id responseObject))success failure:(void ( ^ _Nonnull )( NSError * _Nonnull error))failure;
+
 
 @end

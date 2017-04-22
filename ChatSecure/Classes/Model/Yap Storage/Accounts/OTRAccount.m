@@ -22,12 +22,13 @@
 #import "OTRProtocolManager.h"
 #import <ChatSecureCore/ChatSecureCore-Swift.h>
 #import "OTRColors.h"
+@import AFNetworking;
 
-
-NSString *const OTRAimImageName               = @"aim.png";
-NSString *const OTRGoogleTalkImageName        = @"gtalk.png";
-NSString *const OTRXMPPImageName              = @"xmpp.png";
-NSString *const OTRXMPPTorImageName           = @"xmpp-tor-logo.png";
+NSString *const OTRAimImageName                         = @"aim.png";
+NSString *const OTRGoogleTalkImageName                  = @"gtalk.png";
+NSString *const OTRXMPPImageName                        = @"xmpp.png";
+NSString *const OTRXMPPTorImageName                     = @"xmpp-tor-logo.png";
+NSString *const OTRXMPPUserDetailsFetchedNotification   = @"OTRXMPPUserDetailsFetchedNotification";
 
 @interface OTRAccount ()
 
@@ -339,6 +340,92 @@ NSString *const OTRXMPPTorImageName           = @"xmpp-tor-logo.png";
             return nil;
             break;
     }
+}
+
++(void)addUserToList:(NSDictionary *)user {
+    [OTRAccount addUsersToList:@[user]];
+}
+
++(void)addUsersToList:(NSArray *)users {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"AllVROUsers.plist"];
+    
+    NSArray *allUsers = [NSArray arrayWithContentsOfFile:filePath];
+    NSMutableArray *newUsers = [NSMutableArray new];
+    [users enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id = %@" , obj[@"id"]];
+        NSArray *filtered = [allUsers filteredArrayUsingPredicate:predicate];
+        if (![filtered count]) {
+            [newUsers addObject:obj];
+        }
+    }];
+    if ([newUsers count]) {
+        [newUsers addObjectsFromArray:allUsers];
+        NSError *error;
+        NSData *data = [NSPropertyListSerialization dataWithPropertyList:[newUsers mutableCopy] format:NSPropertyListBinaryFormat_v1_0 options:0 error:&error];
+        if (data) {
+            [data writeToFile:filePath atomically:NO];
+        }
+    }
+}
+
++(NSDictionary *)fetchUserWithUsernameOrUserId:(nullable NSString *)string {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"AllVROUsers.plist"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        NSArray *allUsers = [NSArray arrayWithContentsOfFile:filePath];
+        NSString *userId = [[string componentsSeparatedByString:@"@"] firstObject];
+        if (userId) {
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %d" , [userId intValue]];
+            NSArray *filtered = [allUsers filteredArrayUsingPredicate:predicate];
+            if ([filtered count]) {
+                return [filtered firstObject];
+            } else {
+                OTRAccount *account = [[OTRAppDelegate appDelegate] getDefaultAccount];
+                [account getmyUserDataFromVROServer:userId success:^(id  _Nonnull responseObject) {
+                    [OTRAccount addUserToList:responseObject[@"data"]];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:OTRXMPPUserDetailsFetchedNotification object:nil];
+                } failure:^(NSError * _Nonnull error) {
+                    
+                }];
+            }
+        }
+    }
+    return nil;
+}
+
+#pragma - mark Get Buddy
+-(void)getmyUserDataFromVROServer:(NSString *)userId success:(void (^)(id responseObject))success failure:(void (^)(NSError *error))failure {
+    NSOperationQueue *apiOperationQueue = [[NSOperationQueue alloc]init];
+    apiOperationQueue.maxConcurrentOperationCount = 2;
+    [apiOperationQueue addOperationWithBlock:^{
+        NSString *urlString  ;
+        urlString = [NSString stringWithFormat:@"users/%@",userId];
+        AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://vrocloud.com/vro_v3/v1/"]];
+        manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+        [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+        [manager.requestSerializer setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+        if (self.accessToken) {
+            [manager.requestSerializer setValue:[NSString stringWithFormat:@"Bearer %@", self.accessToken] forHTTPHeaderField:@"Authorization"];
+        }
+        [manager GET:urlString parameters:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+            
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            if (responseObject) {
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    success(responseObject);
+                }];
+            }else{
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    failure(nil);
+                }];
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            failure(error);
+        }];
+    }];
 }
 
 @end

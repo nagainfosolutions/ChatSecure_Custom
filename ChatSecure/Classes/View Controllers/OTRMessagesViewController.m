@@ -1662,12 +1662,11 @@ static VROCache *sharedInstance;
         if ([message isKindOfClass:[OTRXMPPRoomMessage class]]) {
             NSString *displayName = [message senderDisplayName];
             NSString *userId = [[displayName componentsSeparatedByString:@"%@"] firstObject];
-            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"username CONTAINS[cd] %@", [NSString stringWithFormat:@"%@@", userId]];
-            NSArray <OTRXMPPBuddy *>*filtered = [imageAccount.allFriends filteredArrayUsingPredicate:predicate];
-            if ([filtered count]) {
-                return [[NSAttributedString alloc] initWithString:[filtered firstObject].displayName];
+            NSDictionary *user = [OTRAccount fetchUserWithUsernameOrUserId:userId];
+            if (user) {
+                return [[NSAttributedString alloc] initWithString:user[@"full_name"]];
             } else {
-                return [[NSAttributedString alloc] initWithString:displayName];
+                return [[NSAttributedString alloc] initWithString:@"Unkown buddy"];
             }
         } else {
             NSString *displayName = [message senderDisplayName];
