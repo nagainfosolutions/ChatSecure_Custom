@@ -472,15 +472,8 @@ static VROCache *sharedInstance;
             buddy = [OTRBuddy fetchObjectWithUniqueID:key transaction:transaction];
             account = [OTRAccount fetchObjectWithUniqueID:buddy.accountUniqueId transaction:transaction];
         }];
-        
-        NSLog(@"account :::::::::: %@",account);
-        NSLog(@"buddy :::::::::: %@",buddy);
-        
-        NSLog(@"account.username :::::::::: %@",account.username);
-        NSLog(@"buddy.username :::::::::: %@",buddy.username);
-        
-        //Update UI now
-        if (![buddy.username isEqualToString:account.username] && (buddy.chatState == OTRChatStateComposing || buddy.chatState == OTRChatStatePaused)) {
+
+        if (self.state.isThreadOnline && (buddy.chatState == OTRChatStateComposing || buddy.chatState == OTRChatStatePaused)) {
             
 //            if(buddy.chatState == OTRChatStateInactive) {
 //                
