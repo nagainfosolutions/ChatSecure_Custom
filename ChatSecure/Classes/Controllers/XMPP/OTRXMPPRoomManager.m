@@ -352,23 +352,38 @@
             [self.databaseConnection readWithBlock:^(YapDatabaseReadTransaction * _Nonnull transaction) {
                 [arary enumerateObjectsUsingBlock:^(NSString *  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                     NSURL *baseURL = [NSURL URLWithString:@"http://ec2-54-169-209-47.ap-southeast-1.compute.amazonaws.com:5285"];
-                    _manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
-                    _manager.requestSerializer = [AFJSONRequestSerializer serializer];
-                    _manager.responseSerializer = [AFJSONResponseSerializer serializer];
+                    if (!_manager) {
+                        _manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
+                        _manager.requestSerializer = [AFJSONRequestSerializer serializer];
+                        _manager.responseSerializer = [AFJSONResponseSerializer serializer];
+                    }
                     NSString *subject = [self.tempRoomSubject objectForKey:sender.roomJID.bare];
                     NSDictionary *params = @{@"key":@"secret",@"command":@"send_direct_invitation", @"args": @[sender.roomJID.user, sender.roomJID.domain, @"", subject ? subject : @"", obj]};
                     [_manager POST:@"api/admin/" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
                         
                     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-                        [sender editRoomPrivileges:@[[XMPPRoom itemWithAffiliation:@"member" jid:[XMPPJID jidWithString:obj]]]];
+                        [self editRoomPrivilegeForUser:obj room:sender];
                     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-                        [sender editRoomPrivileges:@[[XMPPRoom itemWithAffiliation:@"member" jid:[XMPPJID jidWithString:obj]]]];
+                        [self editRoomPrivilegeForUser:obj room:sender];
                     }];
-                    
                 }];
             }];
         }
+        OTRAccount *account = [[OTRAppDelegate appDelegate] getDefaultAccount];
+        NSDictionary *params = @{@"key":@"secret",@"command":@"set_room_affiliation", @"args": @[sender.roomJID.user, sender.roomJID.domain, account.username, @"owner"]};
+        [_manager POST:@"api/admin/" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        }];
     });
+}
+
+-(void)editRoomPrivilegeForUser:(NSString *)obj room:(XMPPRoom *)sender  {
+    NSDictionary *params = @{@"key":@"secret",@"command":@"set_room_affiliation", @"args": @[sender.roomJID.user, sender.roomJID.domain, obj, @"member"]};
+    [_manager POST:@"api/admin/" parameters:params progress:^(NSProgress * _Nonnull uploadProgress) {
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+    }];
 }
 
 - (void)xmppRoomDidJoin:(XMPPRoom *)sender
@@ -384,7 +399,6 @@
         }
     });
 }
-
 
 #pragma - mark OTRYapViewHandlerDelegateProtocol Methods
 

@@ -349,9 +349,9 @@ NSString *const OTRXMPPUserDetailsFetchedNotification   = @"OTRXMPPUserDetailsFe
 +(void)addUsersToList:(NSArray *)users {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"AllVROUsers.plist"];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"AllVROUsers.txt"];
     
-    NSArray *allUsers = [NSArray arrayWithContentsOfFile:filePath];
+    NSArray *allUsers = [NSKeyedUnarchiver unarchiveObjectWithData:[NSData dataWithContentsOfFile:filePath]];
     NSMutableArray *newUsers = [NSMutableArray new];
     [users enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id = %@" , obj[@"id"]];
@@ -362,10 +362,10 @@ NSString *const OTRXMPPUserDetailsFetchedNotification   = @"OTRXMPPUserDetailsFe
     }];
     if ([newUsers count]) {
         [newUsers addObjectsFromArray:allUsers];
-        NSError *error;
-        NSData *data = [NSPropertyListSerialization dataWithPropertyList:[newUsers mutableCopy] format:NSPropertyListBinaryFormat_v1_0 options:0 error:&error];
+        NSData *data = [NSKeyedArchiver archivedDataWithRootObject:newUsers];
         if (data) {
             [data writeToFile:filePath atomically:NO];
+            [[NSNotificationCenter defaultCenter] postNotificationName:OTRXMPPUserDetailsFetchedNotification object:nil];
         }
     }
 }
@@ -373,9 +373,9 @@ NSString *const OTRXMPPUserDetailsFetchedNotification   = @"OTRXMPPUserDetailsFe
 +(NSDictionary *)fetchUserWithUsernameOrUserId:(nullable NSString *)string {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
-    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"AllVROUsers.plist"];
+    NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"AllVROUsers.txt"];
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
-        NSArray *allUsers = [NSArray arrayWithContentsOfFile:filePath];
+        NSArray *allUsers = [NSKeyedUnarchiver unarchiveObjectWithData:[NSData dataWithContentsOfFile:filePath]];
         NSString *userId = [[string componentsSeparatedByString:@"@"] firstObject];
         if (userId) {
             NSPredicate *predicate = [NSPredicate predicateWithFormat:@"id == %d" , [userId intValue]];
@@ -386,7 +386,6 @@ NSString *const OTRXMPPUserDetailsFetchedNotification   = @"OTRXMPPUserDetailsFe
                 OTRAccount *account = [[OTRAppDelegate appDelegate] getDefaultAccount];
                 [account getmyUserDataFromVROServer:userId success:^(id  _Nonnull responseObject) {
                     [OTRAccount addUserToList:responseObject[@"data"]];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:OTRXMPPUserDetailsFetchedNotification object:nil];
                 } failure:^(NSError * _Nonnull error) {
                     
                 }];
