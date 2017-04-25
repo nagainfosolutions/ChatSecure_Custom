@@ -385,7 +385,9 @@ NSString *const OTRXMPPUserDetailsFetchedNotification   = @"OTRXMPPUserDetailsFe
             } else {
                 OTRAccount *account = [[OTRAppDelegate appDelegate] getDefaultAccount];
                 [account getmyUserDataFromVROServer:userId success:^(id  _Nonnull responseObject) {
-                    [OTRAccount addUserToList:responseObject[@"data"]];
+                    NSString *fullName = [responseObject valueForKeyPath:@"data.full_name"];
+                    NSDictionary *userDetails = @{@"full_name": fullName, @"id": [NSNumber numberWithInt:[userId intValue]]};
+                    [OTRAccount addUserToList:userDetails];
                 } failure:^(NSError * _Nonnull error) {
                     
                 }];
@@ -401,7 +403,7 @@ NSString *const OTRXMPPUserDetailsFetchedNotification   = @"OTRXMPPUserDetailsFe
     apiOperationQueue.maxConcurrentOperationCount = 2;
     [apiOperationQueue addOperationWithBlock:^{
         NSString *urlString  ;
-        urlString = [NSString stringWithFormat:@"users/%@",userId];
+        urlString = [NSString stringWithFormat:@"users/get_name/%@",userId];
         AFHTTPSessionManager *manager = [[AFHTTPSessionManager alloc] initWithBaseURL:[NSURL URLWithString:@"https://vrocloud.com/vro_v3/v1/"]];
         manager.requestSerializer = [AFHTTPRequestSerializer serializer];
         [manager.requestSerializer setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];

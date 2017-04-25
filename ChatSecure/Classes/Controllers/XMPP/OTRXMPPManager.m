@@ -124,7 +124,7 @@ NSString *const OTRXMPPLoginErrorKey = @"OTRXMPPLoginErrorKey";
     
     _deliveryReceipts = [[XMPPMessageDeliveryReceipts alloc] init];
     // We want to check if OTR messages can be decrypted
-    self.deliveryReceipts.autoSendMessageDeliveryReceipts = NO;
+    self.deliveryReceipts.autoSendMessageDeliveryReceipts = YES;
     self.deliveryReceipts.autoSendMessageDeliveryRequests = YES;
     [self.deliveryReceipts activate:self.xmppStream];
 	

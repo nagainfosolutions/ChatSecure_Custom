@@ -37,7 +37,7 @@
         xmppManager = [self xmppManagerWithTransaction:transaction];
     }];
     
-    NSString *service = [xmppManager.roomManager.conferenceServicesJID firstObject];
+    NSString *service = @"conference.ec2-54-169-209-47.ap-southeast-1.compute.amazonaws.com";
     NSString *roomName = [NSUUID UUID].UUIDString;
     XMPPJID *roomJID = [XMPPJID jidWithString:[NSString stringWithFormat:@"%@@%@",roomName,service]];
     self.threadKey = [xmppManager.roomManager startGroupChatWithBuddies:buddies roomJID:roomJID nickname:account.username subject:name];

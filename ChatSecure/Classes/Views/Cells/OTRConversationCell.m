@@ -91,9 +91,17 @@
     self.imageViewBorderColor = statusColor;
     
     
-    NSString * nameString = [thread threadName];
-    
-    self.nameLabel.text = nameString;
+    if ([thread isKindOfClass:[OTRBuddy class]]) {
+        NSDictionary *user = [OTRAccount fetchUserWithUsernameOrUserId:[(OTRBuddy *)thread username]];
+        if (user) {
+            self.nameLabel.text = user[@"full_name"];
+        } else {
+            self.nameLabel.text = @"Unkown buddy";
+        }
+    } else {
+        NSString * nameString = [thread threadName];
+        self.nameLabel.text = nameString;
+    }
     
     __block OTRAccount *account = nil;
     __block id <OTRMessageProtocol> lastMessage = nil;

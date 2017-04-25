@@ -584,7 +584,17 @@ static VROCache *sharedInstance;
         account =  [self accountWithTransaction:transaction];
     }];
     
-    titleView.titleLabel.text = [thread threadName];
+    if ([thread isKindOfClass:[OTRBuddy class]]) {
+        NSDictionary *user = [OTRAccount fetchUserWithUsernameOrUserId:[(OTRBuddy *)thread username]];
+        if (user) {
+            titleView.titleLabel.text = user[@"full_name"];
+        } else {
+           titleView.titleLabel.text = @"Unkown buddy";
+        }
+    } else {
+        NSString * nameString = [thread threadName];
+        titleView.titleLabel.text = nameString;
+    }
     titleView.titleLabel.font = [UIFont fontWithName:@"Calibri" size:20.0];
     titleView.titleLabel.textColor = [UIColor whiteColor];
     
@@ -1521,7 +1531,16 @@ static VROCache *sharedInstance;
 
 - (id<JSQMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView messageDataForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return (id <JSQMessageData>)[self messageAtIndexPath:indexPath];
+    id<JSQMessageData> messageData = (id <JSQMessageData>)[self messageAtIndexPath:indexPath];
+//    if ([messageData isKindOfClass:[OTRIncomingMessage class]] && [self isValidUrl:[messageData text]]) {
+//        [(OTRIncomingMessage *)messageData setMediaItemUniqueId:[(OTRIncomingMessage *)messageData messageId]];
+//    }
+    return messageData;
+}
+
+- (BOOL)isValidUrl: (NSString *) urlString {
+    NSURL *url = [NSURL URLWithString:urlString];
+    return url && ([urlString containsString:@".jpg"] || [urlString containsString:@".amr"]);
 }
 
 - (id<JSQMessageBubbleImageDataSource>)collectionView:(JSQMessagesCollectionView *)collectionView messageBubbleImageDataForItemAtIndexPath:(NSIndexPath *)indexPath

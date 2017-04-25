@@ -124,6 +124,9 @@
         historyElement = [NSXMLElement elementWithName:@"history"];
         [historyElement addAttributeWithName:@"since" stringValue:dateTimeString];
     }
+    if ([subject length]) {
+        [room changeRoomSubject:subject];
+    }
     [room joinRoomUsingNickname:name history:historyElement];
     return databaseRoomKey;
 }
