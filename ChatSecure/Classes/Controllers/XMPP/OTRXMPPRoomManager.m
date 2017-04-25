@@ -139,9 +139,7 @@
     dispatch_async(moduleQueue, ^{
         if ([buddiesArray count]) {
             [self.inviteDictionary setObject:buddiesArray forKey:roomName.bare];
-        }
-        
-        
+        }        
     });
     
     return [self joinRoom:roomName withNickname:name subject:subject];

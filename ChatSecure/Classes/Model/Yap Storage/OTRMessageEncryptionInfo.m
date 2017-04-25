@@ -24,7 +24,7 @@
 }
 
 - (nullable instancetype)initWithOTRFingerprint:(nonnull NSData *)otrFingerprint {
-    if (self = [self initWithMessageSecurity:OTRMessageTransportSecurityOTR]) {
+    if (self = [self initWithMessageSecurity:OTRMessageTransportSecurityPlaintext]) {
         _otrFingerprint = otrFingerprint;
     }
     return self;

@@ -1365,7 +1365,7 @@ static VROCache *sharedInstance;
             __block OTROutgoingMessage *message = [[OTROutgoingMessage alloc] init];
             message.buddyUniqueId = self.threadKey;
             message.mediaItemUniqueId = imageItem.uniqueId;
-            message.messageSecurityInfo = [[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:OTRMessageTransportSecurityOTR];
+            message.messageSecurityInfo = [[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:OTRMessageTransportSecurityPlaintext];
             
             [self.readWriteDatabaseConnection asyncReadWriteWithBlock:^(YapDatabaseReadWriteTransaction *transaction) {
                 [message saveWithTransaction:transaction];
@@ -1405,7 +1405,7 @@ static VROCache *sharedInstance;
     __block OTROutgoingMessage *message = [[OTROutgoingMessage alloc] init];
     message.mediaItemUniqueId = videoItem.uniqueId;
     message.buddyUniqueId = self.threadKey;
-    message.messageSecurityInfo = [[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:OTRMessageTransportSecurityOTR];
+    message.messageSecurityInfo = [[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:OTRMessageTransportSecurityPlaintext];
     
     NSString *newPath = [OTRMediaFileManager pathForMediaItem:videoItem buddyUniqueId:self.threadKey];
     [[OTRMediaFileManager sharedInstance] copyDataFromFilePath:videoURL.path toEncryptedPath:newPath completionQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) completion:^(NSError *error) {
