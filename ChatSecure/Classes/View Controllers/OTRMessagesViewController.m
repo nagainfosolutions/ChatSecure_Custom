@@ -636,7 +636,7 @@ static VROCache *sharedInstance;
                 OTRMediaItem *mediaItem = [OTRMediaItem fetchObjectWithUniqueID:dbMessage.mediaItemUniqueId transaction:transaction];
                 [self sendMediaItem:mediaItem data:nil tag:dbMessage transaction:transaction];
             } else {
-                dbMessage.messageSecurityInfo =[[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:self.state.messageSecurity];
+                dbMessage.messageSecurityInfo =[[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:OTRMessageTransportSecurityPlaintext];
                 dbMessage.date = [NSDate date];
                 OTRYapMessageSendAction *sendingAction = [[OTRYapMessageSendAction alloc] initWithMessageKey:dbMessage.uniqueId messageCollection:[dbMessage messageCollection] buddyKey:dbMessage.buddyUniqueId date:dbMessage.date];
                 [sendingAction saveWithTransaction:transaction];
@@ -1304,7 +1304,7 @@ static VROCache *sharedInstance;
     __block OTROutgoingMessage *message = [[OTROutgoingMessage alloc] init];
     message.buddyUniqueId = self.threadKey;
     message.text = text;
-    message.messageSecurityInfo = [[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:self.state.messageSecurity];
+    message.messageSecurityInfo = [[OTRMessageEncryptionInfo alloc] initWithMessageSecurity:OTRMessageTransportSecurityPlaintext];
     
     //2. Create send message task
     __block OTRYapMessageSendAction *sendingAction = [[OTRYapMessageSendAction alloc] initWithMessageKey:message.uniqueId messageCollection:[OTROutgoingMessage collection] buddyKey:message.threadId date:message.date];
