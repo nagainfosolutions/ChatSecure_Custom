@@ -871,40 +871,44 @@ static VROCache *sharedInstance;
                 [self didUpdateState];
             });
             
-            switch (buddy.preferredSecurity) {
-                case OTRSessionSecurityPlaintextOnly: {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityPlaintext;
-                    });
-                    break;
-                }
-                case OTRSessionSecurityPlaintextWithOTR: {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityPlaintextWithOTR;
-                    });
-                    break;
-                }
-                case OTRSessionSecurityOTR: {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityOTR;
-                    });
-                    break;
-                }
-                case OTRSessionSecurityOMEMOandOTR:
-                case OTRSessionSecurityOMEMO: {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityOMEMO;
-                    });
-                    break;
-                }
-                case OTRSessionSecurityBestAvailable: {
-                    [buddy bestTransportSecurityWithTransaction:transaction completionBlock:^(OTRMessageTransportSecurity security) {
-                        strongSelf.state.messageSecurity = security;
-                    } completionQueue:dispatch_get_main_queue()];
-                    break;
-                }
-                    
-            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                strongSelf.state.messageSecurity = OTRMessageTransportSecurityPlaintext;
+            });
+            
+//            switch (buddy.preferredSecurity) {
+//                case OTRSessionSecurityPlaintextOnly: {
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityPlaintext;
+//                    });
+//                    break;
+//                }
+//                case OTRSessionSecurityPlaintextWithOTR: {
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityPlaintextWithOTR;
+//                    });
+//                    break;
+//                }
+//                case OTRSessionSecurityOTR: {
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityOTR;
+//                    });
+//                    break;
+//                }
+//                case OTRSessionSecurityOMEMOandOTR:
+//                case OTRSessionSecurityOMEMO: {
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        strongSelf.state.messageSecurity = OTRMessageTransportSecurityOMEMO;
+//                    });
+//                    break;
+//                }
+//                case OTRSessionSecurityBestAvailable: {
+//                    [buddy bestTransportSecurityWithTransaction:transaction completionBlock:^(OTRMessageTransportSecurity security) {
+//                        strongSelf.state.messageSecurity = security;
+//                    } completionQueue:dispatch_get_main_queue()];
+//                    break;
+//                }
+//                    
+//            }
         }
     }];
 }
